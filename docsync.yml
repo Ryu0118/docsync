@@ -7,7 +7,7 @@ rules:
   doc: README.md
   message: "CLI surface or hook payload changed \u2014 update README.md (Features,
     Command reference, hook examples)."
-  checksum: a6a1dde2cfa1c8a0e44dfa2f2edf787501409486f3238f6a754016b7be635fb4
+  checksum: 4672451bdd012ffc3ec47d982d8b0c721315558faef0e3fa2c50fc86f2771b0a
 - name: agents-claude
   sources:
   - Package.swift
@@ -17,4 +17,4 @@ rules:
   doc: CLAUDE.md
   message: "Core architecture changed \u2014 update CLAUDE.md (project structure,
     architecture rules, or config format)."
-  checksum: 0c37b832ec106ceb799f190c870560c65bcc4113eb21b2373e04668ac990fd83
+  checksum: 64bd4edf1c1b3dd08030f0e9aa2b6257346a523411989a65fe63425fecd476ce
