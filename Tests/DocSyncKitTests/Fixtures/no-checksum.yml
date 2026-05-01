@@ -1,0 +1,5 @@
+rules:
+  - name: api-doc
+    sources:
+      - src/api/user.ts
+    doc: docs/api.md

@@ -1,0 +1,24 @@
+excluded_paths:
+  - ".build/**"
+  - "**/.build/**"
+  - ".swiftpm/**"
+  - "**/.swiftpm/**"
+  - ".nest/**"
+  - "**/.nest/**"
+
+rules:
+  deep-nesting:
+    args:
+      warning_depth: 3
+      error_depth: 5
+    include:
+      - "Sources/**"
+      - "Tests/**"
+
+  single-large-type-per-file:
+    args:
+      warning_lines: 50
+      error_lines: 100
+    include:
+      - "Sources/**"
+      - "Tests/**"

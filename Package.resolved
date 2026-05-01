@@ -1,0 +1,33 @@
+{
+  "originHash" : "936a8f9041d82090defce0a33955729e02300f76664eef7809af95c7b4051448",
+  "pins" : [
+    {
+      "identity" : "filemanagerprotocol",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Ryu0118/FileManagerProtocol",
+      "state" : {
+        "revision" : "64a9b362f9dcd933f6dad82603c2ab0ff23863fc",
+        "version" : "0.1.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
+        "version" : "1.7.1"
+      }
+    },
+    {
+      "identity" : "yams",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/jpsim/Yams",
+      "state" : {
+        "revision" : "deaf82e867fa2cbd3cd865978b079bfcf384ac28",
+        "version" : "6.2.1"
+      }
+    }
+  ],
+  "version" : 3
+}

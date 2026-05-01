@@ -1,0 +1,12 @@
+rules:
+  - name: api-doc
+    sources:
+      - src/api/user.ts
+      - src/api/order.ts
+    doc: docs/api.md
+    checksum: ""
+  - name: readme
+    sources:
+      - src/main.ts
+    doc: README.md
+    checksum: ""

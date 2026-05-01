@@ -1,0 +1,98 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - '.swiftlint.yml'
+      - 'nestfile.yaml'
+      - 'scripts/nest.sh'
+      - '.github/workflows/test.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Sources/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'Package.resolved'
+      - '.swiftlint.yml'
+      - 'nestfile.yaml'
+      - 'scripts/nest.sh'
+      - '.github/workflows/test.yml'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swiftlint:
+    name: SwiftLint (macOS)
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
+
+      - name: Bootstrap dev tools (nest)
+        run: ./scripts/nest.sh bootstrap nestfile.yaml
+
+      - name: SwiftLint
+        run: .nest/bin/swiftlint lint --config .swiftlint.yml --strict
+
+  test:
+    name: Unit Tests (${{ matrix.name }})
+    needs: swiftlint
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - name: macOS
+            runner: macos-latest
+            xcode-version: '26.2'
+          - name: Linux x86_64
+            runner: ubuntu-latest
+            arch: x86_64
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        if: runner.os == 'macOS'
+        run: sudo xcode-select --switch /Applications/Xcode_${{ matrix.xcode-version }}.app/Contents/Developer
+
+      - name: Install Swift (setup-swift)
+        if: matrix.arch == 'x86_64'
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.2'
+
+      - name: Install dependencies
+        if: matrix.arch == 'x86_64'
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Show Swift version
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            xcrun swift --version
+          else
+            swift --version
+          fi
+
+      - name: Run tests
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            xcrun swift test
+          else
+            swift test
+          fi

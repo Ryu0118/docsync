@@ -1,0 +1,14 @@
+# SwiftFormat configuration for docsync
+
+--swiftversion 6.2
+--indent 4
+--indentcase false
+--stripunusedargs closure-only
+
+--disable redundantSwiftTestingSuite
+
+--exclude .build
+--exclude .swiftpm
+--exclude .nest
+--exclude "**/.build/**"
+--exclude "**/.swiftpm/**"
