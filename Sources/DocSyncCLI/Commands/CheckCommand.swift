@@ -20,44 +20,12 @@ package struct CheckCommand: AsyncParsableCommand {
     package init() {}
 
     package mutating func run() async throws {
-        if claudeHook {
-            do {
-                let result = try await CheckRunner(configURL: ConfigURL.resolved(from: config)).run()
-                if let output = result.claudeHookOutput {
-                    logger.notice("\(output.jsonString)", metadata: .stdoutOutput)
-                }
-            } catch {
-                // Swallow errors in hook mode to guarantee exit 0.
-            }
-            return
-        }
-
-        let configURL = ConfigURL.resolved(from: config)
-        let result = try await CheckRunner(configURL: configURL).run()
-
-        for status in result.statuses {
-            switch status {
-            case let .inSync(name):
-                logger.info("[docsync] ✅ in sync: \(name)", metadata: .plainOutput)
-            case let .outOfSync(name, doc, message):
-                let body = message ?? "sources changed but \(doc) not updated"
-                logger.error(
-                    "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  After updating the docs, run `docsync update` to refresh the checksum.",
-                    metadata: .plainOutput,
-                )
-            case let .missingChecksum(name):
-                logger.warning(
-                    "[docsync] ⚠️  no checksum stored: \(name) (run `docsync update` first)",
-                    metadata: .plainOutput,
-                )
-            }
-        }
-
-        if result.statuses.isEmpty || result.allInSync {
-            logger.info("[docsync] ✅ all docs are in sync", metadata: .plainOutput)
-        }
-
-        if !result.allInSync {
+        do {
+            _ = try await CheckRunner(
+                configURL: ConfigURL.resolved(from: config),
+                mode: claudeHook ? .claudeHook : .commandLine,
+            ).run()
+        } catch CheckRunnerError.outOfSync {
             throw ExitCode(1)
         }
     }

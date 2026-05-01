@@ -14,7 +14,9 @@ package struct UpdateCommand: AsyncParsableCommand {
     package init() {}
 
     package mutating func run() async throws {
-        try await UpdateRunner(configURL: ConfigURL.resolved(from: config)).run()
-        logger.info("[docsync] ✅ checksums updated", metadata: .plainOutput)
+        try await UpdateRunner(
+            configURL: ConfigURL.resolved(from: config),
+            mode: .commandLine,
+        ).run()
     }
 }
