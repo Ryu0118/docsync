@@ -1,0 +1,231 @@
+name: Publish Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.1.0)'
+        required: true
+        type: string
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+permissions:
+  contents: write
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate version format
+        run: |
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "error: version must be in semver format (e.g. 0.1.0)" >&2
+            exit 1
+          fi
+        env:
+          VERSION: ${{ inputs.version }}
+
+      - name: Check tag does not already exist
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/$VERSION$"; then
+            echo "error: tag $VERSION already exists" >&2
+            exit 1
+          fi
+        env:
+          VERSION: ${{ inputs.version }}
+
+  build-macos:
+    needs: preflight
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode 26.2
+        run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
+
+      - name: Build Universal Binary
+        run: xcrun swift build -c release --arch arm64 --arch x86_64
+
+      - name: Create Archive
+        run: |
+          cd .build/apple/Products/Release
+          tar -czvf "docsync-${VERSION}-darwin-universal.tar.gz" docsync
+          shasum -a 256 "docsync-${VERSION}-darwin-universal.tar.gz" \
+            > "docsync-${VERSION}-darwin-universal.tar.gz.sha256"
+        env:
+          VERSION: ${{ inputs.version }}
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v6
+        with:
+          name: docsync-darwin-universal
+          path: |
+            .build/apple/Products/Release/docsync-${{ inputs.version }}-darwin-universal.tar.gz
+            .build/apple/Products/Release/docsync-${{ inputs.version }}-darwin-universal.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Upload binary for artifact bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: binary-macos
+          path: .build/apple/Products/Release/docsync
+          if-no-files-found: error
+
+  build-linux:
+    needs: preflight
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Swift (setup-swift)
+        if: matrix.arch == 'x86_64'
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.2'
+
+      - name: Install Swift (manual arm64)
+        if: matrix.arch == 'arm64'
+        run: |
+          sudo apt-get update && sudo apt-get install -y binutils gnupg2 libc6-dev libcurl4-openssl-dev \
+            libedit2 libgcc-13-dev libncurses-dev libpython3-dev libsqlite3-dev libstdc++-13-dev \
+            libxml2-dev libz3-dev pkg-config tzdata unzip zlib1g-dev
+          SWIFT_URL="https://download.swift.org/swift-6.2.1-release/ubuntu2404-aarch64/swift-6.2.1-RELEASE/swift-6.2.1-RELEASE-ubuntu24.04-aarch64.tar.gz"
+          curl -fsSL "$SWIFT_URL" -o /tmp/swift.tar.gz
+          sudo mkdir -p /opt/swift
+          sudo tar xzf /tmp/swift.tar.gz -C /opt/swift --strip-components=1
+          echo "/opt/swift/usr/bin" >> "$GITHUB_PATH"
+          rm /tmp/swift.tar.gz
+
+      - name: Install dependencies
+        if: matrix.arch == 'x86_64'
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - name: Build Linux Binary
+        run: swift build -c release --static-swift-stdlib
+
+      - name: Create Archive
+        run: |
+          cd .build/release
+          tar -czvf "docsync-${VERSION}-linux-${ARCH}.tar.gz" docsync
+          sha256sum "docsync-${VERSION}-linux-${ARCH}.tar.gz" \
+            > "docsync-${VERSION}-linux-${ARCH}.tar.gz.sha256"
+        env:
+          VERSION: ${{ inputs.version }}
+          ARCH: ${{ matrix.arch }}
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v6
+        with:
+          name: docsync-linux-${{ matrix.arch }}
+          path: |
+            .build/release/docsync-${{ inputs.version }}-linux-${{ matrix.arch }}.tar.gz
+            .build/release/docsync-${{ inputs.version }}-linux-${{ matrix.arch }}.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Upload binary for artifact bundle
+        uses: actions/upload-artifact@v6
+        with:
+          name: binary-linux-${{ matrix.arch }}
+          path: .build/release/docsync
+          if-no-files-found: error
+
+  create-release:
+    needs: [build-macos, build-linux]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all release archives
+        uses: actions/download-artifact@v6
+        with:
+          pattern: docsync-*
+          path: /tmp/release-assets
+          merge-multiple: true
+
+      - name: Download binaries for artifact bundle
+        uses: actions/download-artifact@v6
+        with:
+          name: binary-macos
+          path: /tmp/binaries/macos
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: binary-linux-x86_64
+          path: /tmp/binaries/linux-x86_64
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: binary-linux-arm64
+          path: /tmp/binaries/linux-arm64
+
+      - name: Create Artifact Bundle
+        run: |
+          BUNDLE="docsync.artifactbundle"
+
+          mkdir -p "$BUNDLE/docsync-macos/bin" \
+                   "$BUNDLE/docsync-linux-x86_64/bin" \
+                   "$BUNDLE/docsync-linux-arm64/bin"
+
+          cp /tmp/binaries/macos/docsync "$BUNDLE/docsync-macos/bin/docsync"
+          cp /tmp/binaries/linux-x86_64/docsync "$BUNDLE/docsync-linux-x86_64/bin/docsync"
+          cp /tmp/binaries/linux-arm64/docsync "$BUNDLE/docsync-linux-arm64/bin/docsync"
+          chmod +x "$BUNDLE/docsync-macos/bin/docsync" \
+                   "$BUNDLE/docsync-linux-x86_64/bin/docsync" \
+                   "$BUNDLE/docsync-linux-arm64/bin/docsync"
+
+          cat > "$BUNDLE/info.json" << INFOJSON
+          {
+            "schemaVersion": "1.0",
+            "artifacts": {
+              "docsync": {
+                "version": "${VERSION}",
+                "type": "executable",
+                "variants": [
+                  {
+                    "path": "docsync-macos/bin/docsync",
+                    "supportedTriples": ["x86_64-apple-macosx", "arm64-apple-macosx"]
+                  },
+                  {
+                    "path": "docsync-linux-x86_64/bin/docsync",
+                    "supportedTriples": ["x86_64-unknown-linux-gnu"]
+                  },
+                  {
+                    "path": "docsync-linux-arm64/bin/docsync",
+                    "supportedTriples": ["aarch64-unknown-linux-gnu"]
+                  }
+                ]
+              }
+            }
+          }
+          INFOJSON
+
+          zip -r "docsync-${VERSION}.artifactbundle.zip" "$BUNDLE"
+          sha256sum "docsync-${VERSION}.artifactbundle.zip" \
+            > "docsync-${VERSION}.artifactbundle.zip.sha256"
+        env:
+          VERSION: ${{ inputs.version }}
+
+      - name: Create GitHub Release with all assets
+        run: |
+          gh release create "$VERSION" \
+            /tmp/release-assets/* \
+            "docsync-${VERSION}.artifactbundle.zip" \
+            "docsync-${VERSION}.artifactbundle.zip.sha256" \
+            --title "$VERSION" \
+            --generate-notes
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
