@@ -1,5 +1,9 @@
 # docsync
 
+[![Language](https://img.shields.io/badge/Language-Swift-F05138?style=flat-square)](https://www.swift.org)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/Ryu0118/docsync/releases/latest)
+[![License](https://img.shields.io/badge/License-MIT-007ec6?style=flat-square)](LICENSE)
+
 > Keep your documentation in sync with source code — automatically.
 
 `docsync` computes a SHA-256 checksum of your source files and stores it alongside each doc rule in `docsync.yml`. When sources change, the stored checksum goes stale, and `docsync check` exits non-zero — making it trivial to enforce doc freshness in CI.
