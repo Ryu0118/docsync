@@ -11,7 +11,7 @@
 ## Features
 
 - 📎 **Tie docs to source** — declare which files must stay in sync with which doc
-- 🚨 **Catch drift in CI** — `docsync check` exits non-zero the moment sources change without a doc update
+- 🚨 **Stale docs fail the check** — `docsync check` exits non-zero the moment sources change without a doc update
 - 🤖 **Agent-aware** — `--claude-hook` / `--codex-hook` feeds structured guidance back to agents so they self-correct instantly
 
 ## Installation
