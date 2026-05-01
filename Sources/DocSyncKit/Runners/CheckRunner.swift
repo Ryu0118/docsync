@@ -39,7 +39,7 @@ package struct CheckRunner {
         return if computed == stored {
             .inSync(ruleName: rule.name)
         } else {
-            .outOfSync(ruleName: rule.name, doc: rule.doc)
+            .outOfSync(ruleName: rule.name, doc: rule.doc, message: rule.message)
         }
     }
 }

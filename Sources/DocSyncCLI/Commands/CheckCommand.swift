@@ -34,9 +34,10 @@ package struct CheckCommand: AsyncParsableCommand {
             switch status {
             case let .inSync(name):
                 logger.info("[docsync] ✅ in sync: \(name)", metadata: .plainOutput)
-            case let .outOfSync(name, doc):
+            case let .outOfSync(name, doc, message):
+                let body = message ?? "sources changed but \(doc) not updated"
                 logger.error(
-                    "[docsync] ❌ out of sync: \(name)\n  - sources changed but \(doc) not updated",
+                    "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  After updating the docs, run `docsync update` to refresh the checksum.",
                     metadata: .plainOutput,
                 )
             case let .missingChecksum(name):
