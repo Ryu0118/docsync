@@ -1,3 +1,4 @@
+// swiftformat:disable redundantSwiftTestingSuite
 @testable import DocSyncKit
 import Testing
 

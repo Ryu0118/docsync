@@ -36,10 +36,10 @@ package struct CheckRunner {
             relativeTo: base,
             fileManager: fileManager,
         )
-        if computed == stored {
-            return .inSync(ruleName: rule.name)
+        return if computed == stored {
+            .inSync(ruleName: rule.name)
         } else {
-            return .outOfSync(ruleName: rule.name, doc: rule.doc)
+            .outOfSync(ruleName: rule.name, doc: rule.doc)
         }
     }
 }

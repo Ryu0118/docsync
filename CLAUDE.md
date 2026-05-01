@@ -6,49 +6,51 @@ CLI tool that keeps documentation in sync with source code via SHA-256 checksums
 
 ```
 Sources/
-  docsync/        # Executable: @main only, calls DocSyncCommand.main()
-  DocSyncCLI/     # CLI layer: subcommand structs calling Runner.run()
-  DocSyncKit/     # All logic: models, checksum, runners, config
+  docsync/        # Executable: @main only, delegates to DocSyncCommand.main()
+  DocSyncCLI/     # CLI layer: subcommand structs that call XxxRunner.run()
+  DocSyncKit/     # All business logic: models, checksum, runners, config
 Tests/
-  DocSyncKitTests/  # swift-testing, target 90%+ coverage
+  DocSyncKitTests/  # swift-testing, targeting 90%+ coverage
 ```
 
-## Rules
+## Architecture rules
 
-- Executable (`docsync`) must contain NO business logic — only `DocSyncCommand.main()`
+- The `docsync` executable must contain **no business logic** — only `DocSyncCommand.main()`
 - All logic lives in `DocSyncKit`
-- `DocSyncCLI` calls `XxxRunner(…).run()` — no logic beyond argument parsing and output
+- `DocSyncCLI` subcommands call `XxxRunner(…).run()` — no logic beyond argument parsing and output
 - No `swiftlint:disable` without explicit approval
 - No `URL(fileURLWithPath:)` — use `URL(filePath:)` instead
 - No `nonisolated(unsafe)`
-- Use `FileManagerProtocol` for all file I/O so tests can mock it
-- Checksums are pure functions: deterministic, sort sources first
+- Use `FileManagerProtocol` for all file I/O to keep tests mockable
+- Checksums are deterministic pure functions: sort sources alphabetically before hashing
 
 ## Tooling
 
-| Tool | Version | 用途 |
-|------|---------|------|
-| SwiftFormat | 0.60.1 | コードフォーマット |
-| SwiftLint | 0.63.2 | Lint (strict) |
-| gitnagg | 0.2.1 | コミットサイズ警告 |
-| periphery | 3.6.0 | 未使用コード検出 |
+| Tool | Version | Purpose |
+|------|---------|---------|
+| SwiftFormat | 0.60.1 | Code formatting |
+| SwiftLint | 0.63.2 | Linting (strict) |
+| my-swift-linter | 0.3.0 | AST-level lint rules |
+| gitnagg | 0.2.1 | Commit size warnings |
+| periphery | 3.6.0 | Unused code detection |
 
-nest でローカル `.nest/bin/` にインストール。`make setup` で一発セットアップ。
+All tools are installed locally into `.nest/bin/` via `nest`. Run `make setup` first.
 
 ## Dev setup
 
 ```bash
-make setup        # nest install (SwiftFormat/SwiftLint/gitnagg/periphery) + git hooks 設定
-make check        # format → lint → test を順に実行
-swift test        # テストのみ直接実行
-make format       # SwiftFormat のみ
-make lint         # SwiftLint --strict のみ
+make setup        # Install all tools via nest + configure git hooks
+make check        # format → lint → ast-lint → test
+make format       # SwiftFormat only
+make lint         # SwiftLint --strict only
+make ast-lint     # my-swift-linter AST checks only
+swift test        # Run tests directly (no tooling required)
 ```
 
-**必須**: `make setup` を先に実行しないと `make format`/`make lint` は失敗する。
-`swift test` はツールなしで実行可能。
+**Required:** Run `make setup` before `make format`, `make lint`, or `make ast-lint`.
+`swift test` works without setup.
 
-## Config format
+## Config format (docsync.yml)
 
 ```yaml
 rules:
@@ -61,4 +63,4 @@ rules:
 
 ## Checksum algorithm
 
-`sorted(sources) → concatenate file bytes → SHA256 → lowercase hex`
+`sorted(sources) → concatenate file bytes → SHA-256 → lowercase hex`

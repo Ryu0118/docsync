@@ -2,16 +2,15 @@
 
 > Keep your documentation in sync with source code — automatically.
 
-`docsync` computes a SHA-256 checksum of your source files and stores it next to each doc rule.
-When sources change, the stored checksum becomes stale, and `docsync check` exits non-zero — making it easy to enforce doc freshness in CI.
+`docsync` computes a SHA-256 checksum of your source files and stores it alongside each doc rule in `docsync.yml`. When sources change, the stored checksum goes stale, and `docsync check` exits non-zero — making it trivial to enforce doc freshness in CI.
 
 ---
 
 ## Features
 
-- **Checksum-based sync detection** — deterministic SHA-256 over sorted source contents
+- **Checksum-based drift detection** — deterministic SHA-256 over sorted source file contents
 - **YAML config** — human-readable, diff-friendly `docsync.yml`
-- **Two commands** — `check` (read-only, CI-friendly) and `update` (rewrites checksums)
+- **Two commands** — `check` (read-only, CI-safe) and `update` (rewrites checksums)
 - **Cross-platform** — macOS and Linux (x86_64 / arm64)
 - **No runtime dependencies** — single static binary on Linux
 
@@ -19,15 +18,9 @@ When sources change, the stored checksum becomes stale, and `docsync check` exit
 
 ## Installation
 
-### Homebrew (coming soon)
-
-```bash
-brew install docsync
-```
-
 ### Download binary
 
-Grab the latest archive from [Releases](../../releases) and move the binary to your `$PATH`:
+Grab the latest archive from [Releases](../../releases) and place the binary on your `$PATH`:
 
 ```bash
 tar xf docsync-<version>-darwin-universal.tar.gz
@@ -65,7 +58,7 @@ rules:
     doc: README.md
 ```
 
-### 2. Store the current checksums
+### 2. Store the initial checksums
 
 ```bash
 docsync update
@@ -80,7 +73,7 @@ rules:
       - src/api/user.ts
       - src/api/order.ts
     doc: docs/api.md
-    checksum: "a3f2e1..."   # ← computed
+    checksum: "a3f2e1..."
 ```
 
 ### 3. Check for drift
@@ -89,7 +82,7 @@ rules:
 docsync check
 ```
 
-Output when in sync:
+Output when everything is in sync:
 
 ```
 [docsync] ✅ all docs are in sync
@@ -115,7 +108,7 @@ Exit code `1` when out of sync, `0` when all rules pass.
   run: docsync check
 ```
 
-A complete workflow example is in [`.github/workflows/test.yml`](.github/workflows/test.yml).
+A complete workflow example lives in [`.github/workflows/test.yml`](.github/workflows/test.yml).
 
 ### Pre-commit hook
 
@@ -148,16 +141,16 @@ OPTIONS:
 sorted(sources) → concatenate file bytes → SHA-256 → lowercase hex
 ```
 
-Sorting source paths before hashing ensures the result is independent of how sources are listed in `docsync.yml`.
+Source paths are sorted alphabetically before hashing, so the result is independent of the order they appear in `docsync.yml`.
 
 ---
 
 ## Dev setup
 
 ```bash
-make setup    # install SwiftFormat, SwiftLint, gitnagg, periphery + configure git hooks
-make check    # format + lint + test
-swift test    # run tests directly
+make setup    # Install SwiftFormat, SwiftLint, my-swift-linter, gitnagg, periphery + configure git hooks
+make check    # format + lint + ast-lint + test
+swift test    # Run tests directly (no tooling required)
 ```
 
 ---
