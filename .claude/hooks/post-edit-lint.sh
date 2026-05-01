@@ -1,11 +1,11 @@
 #!/bin/sh
-FILE_PATH=$(jq -r '.tool_input.file_path // ""')
-echo "$FILE_PATH" | grep -q '\.swift$' || exit 0
+INPUT=$(cat)
+FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // ""')
+printf '%s' "$FILE_PATH" | grep -q '\.swift$' || exit 0
 [ -f "$FILE_PATH" ] || exit 0
 
 SRCROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 
-HAS_ERROR=0
 ALL_REASONS=""
 
 # Resolve relative path
@@ -36,29 +36,23 @@ fi
 if [ -n "$SWIFTLINT" ] && [ -f "$SRCROOT/.swiftlint.yml" ]; then
   LINT_OUTPUT=$("$SWIFTLINT" lint --config "$SRCROOT/.swiftlint.yml" --strict --quiet "$FILE_PATH" 2>&1) || true
   if [ -n "$LINT_OUTPUT" ]; then
-    echo "$LINT_OUTPUT" >&2
     ALL_REASONS="${ALL_REASONS}${LINT_OUTPUT}\n"
-    HAS_ERROR=1
   fi
 fi
 
-# 3. gitnagg
+# 3. gitnagg — capture plain (non-timestamp) output only; exit code is irrelevant
 if [ -x "$SRCROOT/.nest/bin/gitnagg" ] && [ -f "$SRCROOT/.gitnagg.yml" ]; then
-  set +e
-  NAGG_OUTPUT=$("$SRCROOT/.nest/bin/gitnagg" check --config "$SRCROOT/.gitnagg.yml" 2>&1)
-  NAGG_STATUS=$?
-  set -e
-  if [ "$NAGG_STATUS" -ne 0 ]; then
-    echo "$NAGG_OUTPUT" >&2
+  NAGG_OUTPUT=$("$SRCROOT/.nest/bin/gitnagg" check --config "$SRCROOT/.gitnagg.yml" 2>&1 \
+    | grep -v '^[0-9][0-9][0-9][0-9]-' || true)
+  if [ -n "$NAGG_OUTPUT" ]; then
     ALL_REASONS="${ALL_REASONS}${NAGG_OUTPUT}\n"
-    HAS_ERROR=1
   fi
 fi
 
-if [ "$HAS_ERROR" -ne 0 ]; then
+# Report to Claude via JSON stdout (exit 0 is required — JSON is ignored on any other exit code)
+if [ -n "$ALL_REASONS" ]; then
   REASON=$(printf '%b' "$ALL_REASONS" | jq -Rs .)
   printf '{"decision":"block","reason":%s}\n' "$REASON"
-  exit 2
 fi
 
 exit 0

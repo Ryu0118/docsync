@@ -1,13 +1,21 @@
 #!/bin/sh
 # Claude Code PreToolUse hook: architecture constraints
-FILE_PATH=$(jq -r '.tool_input.file_path // ""')
-NEW_CONTENT=$(jq -r '.tool_input.new_string // .tool_input.content // ""')
+# exit 0 + hookSpecificOutput JSON is the correct pattern for PreToolUse.
+INPUT=$(cat)
+FILE_PATH=$(printf '%s' "$INPUT" | jq -r '.tool_input.file_path // ""')
+NEW_CONTENT=$(printf '%s' "$INPUT" | jq -r '.tool_input.new_string // .tool_input.content // ""')
 
-echo "$FILE_PATH" | grep -q '\.swift$' || exit 0
+printf '%s' "$FILE_PATH" | grep -q '\.swift$' || exit 0
 
-if echo "$NEW_CONTENT" | grep -q 'swiftlint:disable'; then
-  echo '{"decision":"block","reason":"swiftlint:disable is not allowed. Fix the code instead."}'
-  exit 2
+if printf '%s' "$NEW_CONTENT" | grep -q 'swiftlint:disable'; then
+  jq -n '{
+    "hookSpecificOutput": {
+      "hookEventName": "PreToolUse",
+      "permissionDecision": "deny",
+      "permissionDecisionReason": "swiftlint:disable is not allowed. Fix the underlying lint violation instead."
+    }
+  }'
+  exit 0
 fi
 
 exit 0

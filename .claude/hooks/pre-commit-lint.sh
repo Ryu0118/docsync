@@ -1,6 +1,7 @@
 #!/bin/sh
-COMMAND=$(jq -r '.tool_input.command // ""')
-echo "$COMMAND" | grep -q '^git commit' || exit 0
+INPUT=$(cat)
+COMMAND=$(printf '%s' "$INPUT" | jq -r '.tool_input.command // ""')
+printf '%s' "$COMMAND" | grep -q '^git commit' || exit 0
 
 SRCROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 
@@ -21,8 +22,8 @@ if [ -z "$STAGED_SWIFT_FILES" ]; then
 fi
 
 if [ -f "$SRCROOT/.swiftformat" ]; then
-  echo "$STAGED_SWIFT_FILES" | xargs "$SWIFTFORMAT" --config "$SRCROOT/.swiftformat"
-  echo "$STAGED_SWIFT_FILES" | xargs git add
+  printf '%s\n' "$STAGED_SWIFT_FILES" | xargs "$SWIFTFORMAT" --config "$SRCROOT/.swiftformat"
+  printf '%s\n' "$STAGED_SWIFT_FILES" | xargs git add
 fi
 
 if [ ! -f "$SRCROOT/.swiftlint.yml" ]; then
@@ -49,7 +50,6 @@ set -e
 if [ "$LINT_STATUS" -ne 0 ]; then
   REASON=$(printf '%s' "$LINT_OUTPUT" | jq -Rs .)
   printf '{"decision":"block","reason":%s}\n' "$REASON"
-  exit 2
 fi
 
 exit 0
