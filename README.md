@@ -66,6 +66,8 @@ rules:
 docsync update
 ```
 
+Skip this step if you're adding docsync to an existing project where the docs are already up to date — just run `docsync update` once to stamp the initial checksums, then commit `docsync.yml`.
+
 ### 3. Check for drift
 
 ```bash
