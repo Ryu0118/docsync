@@ -18,21 +18,30 @@
 
 ## Installation
 
-### Download binary
-
-Grab the latest archive from [Releases](../../releases) and place the binary on your `$PATH`:
-
 ```bash
-tar xf docsync-<version>-darwin-universal.tar.gz
-mv docsync /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/install.sh | bash
 ```
 
-### Build from source
+### Other methods
+
+#### Nest ([mtj0928/nest](https://github.com/mtj0928/nest))
+
+```bash
+nest install Ryu0118/docsync
+```
+
+#### Mise ([jdx/mise](https://github.com/jdx/mise))
+
+```bash
+mise use -g ubi:Ryu0118/docsync
+```
+
+#### Build from source
 
 Requires Swift 6.2+:
 
 ```bash
-git clone https://github.com/yourorg/docsync
+git clone https://github.com/Ryu0118/docsync
 cd docsync
 swift build -c release
 cp .build/release/docsync /usr/local/bin/
