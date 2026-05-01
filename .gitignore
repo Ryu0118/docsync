@@ -9,3 +9,5 @@ DerivedData/
 .nest
 .serena
 .claude/settings.local.json
+.docsync-cache/
+*.skill
