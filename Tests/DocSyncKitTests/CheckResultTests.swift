@@ -122,4 +122,26 @@ struct CheckResultTests {
         #expect(output?.reason.contains("guide") == true)
         #expect(output?.reason.contains("intro") == false)
     }
+
+    @Test
+    func `codexHookOutput is nil when all in sync`() {
+        let result = CheckResult(statuses: [.inSync(ruleName: "r1")])
+        #expect(result.codexHookOutput == nil)
+    }
+
+    @Test
+    func `codexHookOutput blocks when outOfSync`() {
+        let result = CheckResult(statuses: [.outOfSync(ruleName: "api-doc", doc: "docs/api.md", message: nil)])
+        let output = result.codexHookOutput
+        #expect(output != nil)
+        #expect(output?.decision == "block")
+        #expect(output?.reason.contains("api-doc") == true)
+        #expect(output?.reason.contains("docs/api.md") == true)
+    }
+
+    @Test
+    func `codexHookOutput and claudeHookOutput produce same payload`() {
+        let result = CheckResult(statuses: [.outOfSync(ruleName: "r", doc: "d.md", message: "Update it")])
+        #expect(result.codexHookOutput == result.claudeHookOutput)
+    }
 }
