@@ -64,6 +64,33 @@ struct DocSyncConfigTests {
     }
 
     @Test
+    func `rule without message field decodes as nil`() throws {
+        let yaml = """
+        rules:
+          - name: api-doc
+            sources:
+              - src/api/user.ts
+            doc: docs/api.md
+        """
+        let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
+        #expect(config.rules[0].message == nil)
+    }
+
+    @Test
+    func `rule with message field decodes correctly`() throws {
+        let yaml = """
+        rules:
+          - name: api-doc
+            sources:
+              - src/api/user.ts
+            doc: docs/api.md
+            message: "Update the API reference when sources change"
+        """
+        let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
+        #expect(config.rules[0].message == "Update the API reference when sources change")
+    }
+
+    @Test
     func `multiple sources preserved in order`() throws {
         let sources = ["c.ts", "a.ts", "b.ts"]
         let rule = DocSyncConfig.Rule(name: "rrr", sources: sources, doc: "d.md", checksum: nil)

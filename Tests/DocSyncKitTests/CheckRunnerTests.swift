@@ -76,9 +76,10 @@ struct CheckRunnerTests {
 
         let result = try await CheckRunner(configURL: configURL).run()
         #expect(!result.allInSync)
-        if case let .outOfSync(name, doc) = result.statuses[0] {
+        if case let .outOfSync(name, doc, message) = result.statuses[0] {
             #expect(name == "api-doc")
             #expect(doc == "docs/api.md")
+            #expect(message == nil)
         } else {
             Issue.record("Expected outOfSync status")
         }
@@ -166,7 +167,7 @@ struct CheckRunnerTests {
         } else {
             Issue.record("Expected first rule inSync")
         }
-        if case let .outOfSync(name, _) = result.statuses[1] {
+        if case let .outOfSync(name, _, _) = result.statuses[1] {
             #expect(name == "bad-rule")
         } else {
             Issue.record("Expected second rule outOfSync")
