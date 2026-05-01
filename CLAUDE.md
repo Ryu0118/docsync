@@ -30,8 +30,8 @@ Tests/
 |------|---------|---------|
 | SwiftFormat | 0.60.1 | Code formatting |
 | SwiftLint | 0.63.2 | Linting (strict) |
-| my-swift-linter | 0.3.0 | AST-level lint rules |
-| gitnagg | 0.2.1 | Commit size warnings |
+| my-swift-linter | 0.6.0 | AST-level lint rules |
+| gitnagg | 0.3.0 | Commit size warnings |
 | periphery | 3.6.0 | Unused code detection |
 
 All tools are installed locally into `.nest/bin/` via `nest`. Run `make setup` first.

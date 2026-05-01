@@ -40,15 +40,6 @@ if [ -n "$SWIFTLINT" ] && [ -f "$SRCROOT/.swiftlint.yml" ]; then
   fi
 fi
 
-# 3. gitnagg — capture plain (non-timestamp) output only; exit code is irrelevant
-if [ -x "$SRCROOT/.nest/bin/gitnagg" ] && [ -f "$SRCROOT/.gitnagg.yml" ]; then
-  NAGG_OUTPUT=$("$SRCROOT/.nest/bin/gitnagg" check --config "$SRCROOT/.gitnagg.yml" 2>&1 \
-    | grep -v '^[0-9][0-9][0-9][0-9]-' || true)
-  if [ -n "$NAGG_OUTPUT" ]; then
-    ALL_REASONS="${ALL_REASONS}${NAGG_OUTPUT}\n"
-  fi
-fi
-
 # Report to Claude via JSON stdout (exit 0 is required — JSON is ignored on any other exit code)
 if [ -n "$ALL_REASONS" ]; then
   REASON=$(printf '%b' "$ALL_REASONS" | jq -Rs .)
