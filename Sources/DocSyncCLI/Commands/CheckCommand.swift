@@ -20,15 +20,20 @@ package struct CheckCommand: AsyncParsableCommand {
     package init() {}
 
     package mutating func run() async throws {
-        let configURL = resolvedConfigURL()
-        let result = try await CheckRunner(configURL: configURL).run()
-
         if claudeHook {
-            if let output = result.claudeHookOutput {
-                logger.notice("\(output.jsonString)", metadata: .stdoutOutput)
+            do {
+                let result = try await CheckRunner(configURL: ConfigURL.resolved(from: config)).run()
+                if let output = result.claudeHookOutput {
+                    logger.notice("\(output.jsonString)", metadata: .stdoutOutput)
+                }
+            } catch {
+                // Swallow errors in hook mode to guarantee exit 0.
             }
             return
         }
+
+        let configURL = ConfigURL.resolved(from: config)
+        let result = try await CheckRunner(configURL: configURL).run()
 
         for status in result.statuses {
             switch status {
@@ -55,14 +60,5 @@ package struct CheckCommand: AsyncParsableCommand {
         if !result.allInSync {
             throw ExitCode(1)
         }
-    }
-
-    private func resolvedConfigURL() -> URL {
-        let path = config
-        if path.hasPrefix("/") {
-            return URL(filePath: path)
-        }
-        return URL(filePath: FileManager.default.currentDirectoryPath)
-            .appending(path: path)
     }
 }

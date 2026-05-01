@@ -14,17 +14,7 @@ package struct UpdateCommand: AsyncParsableCommand {
     package init() {}
 
     package mutating func run() async throws {
-        let configURL = resolvedConfigURL()
-        try await UpdateRunner(configURL: configURL).run()
+        try await UpdateRunner(configURL: ConfigURL.resolved(from: config)).run()
         logger.info("[docsync] ✅ checksums updated", metadata: .plainOutput)
-    }
-
-    private func resolvedConfigURL() -> URL {
-        let path = config
-        if path.hasPrefix("/") {
-            return URL(filePath: path)
-        }
-        return URL(filePath: FileManager.default.currentDirectoryPath)
-            .appending(path: path)
     }
 }
