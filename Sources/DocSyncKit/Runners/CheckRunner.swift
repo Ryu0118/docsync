@@ -19,24 +19,27 @@ package struct CheckRunner {
     }
 
     package func run() async throws -> CheckResult {
-        if mode == .claudeHook {
-            return await runClaudeHook()
-        }
-
-        let result = try evaluateConfig()
-        if mode == .commandLine {
-            log(result)
-            if !result.allInSync {
-                throw CheckRunnerError.outOfSync
+        switch mode {
+        case .claudeHook:
+            return await runHook(output: \.claudeHookOutput)
+        case .codexHook:
+            return await runHook(output: \.codexHookOutput)
+        case .evaluateOnly, .commandLine:
+            let result = try evaluateConfig()
+            if mode == .commandLine {
+                log(result)
+                if !result.allInSync {
+                    throw CheckRunnerError.outOfSync
+                }
             }
+            return result
         }
-        return result
     }
 
-    private func runClaudeHook() async -> CheckResult {
+    private func runHook(output keyPath: KeyPath<CheckResult, ClaudeHookOutput?>) async -> CheckResult {
         do {
             let result = try evaluateConfig()
-            if let output = result.claudeHookOutput {
+            if let output = result[keyPath: keyPath] {
                 logger.notice("\(output.jsonString)", metadata: .stdoutOutput)
             }
             return result
@@ -106,6 +109,7 @@ package enum CheckRunnerMode: Equatable {
     case evaluateOnly
     case commandLine
     case claudeHook
+    case codexHook
 }
 
 package enum CheckRunnerError: Error, Equatable {

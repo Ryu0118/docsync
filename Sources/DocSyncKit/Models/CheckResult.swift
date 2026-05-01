@@ -11,8 +11,17 @@ package struct CheckResult: Equatable {
         self.statuses = statuses
     }
 
-    /// Returns a Claude Code hook payload when any rule is out of sync, otherwise nil.
+    /// Returns a hook payload when any rule is out of sync, otherwise nil.
     package var claudeHookOutput: ClaudeHookOutput? {
+        hookOutput()
+    }
+
+    /// Returns a hook payload when any rule is out of sync, otherwise nil.
+    package var codexHookOutput: ClaudeHookOutput? {
+        hookOutput()
+    }
+
+    private func hookOutput() -> ClaudeHookOutput? {
         let lines = statuses.compactMap { status -> String? in
             switch status {
             case let .outOfSync(name, doc, message):
