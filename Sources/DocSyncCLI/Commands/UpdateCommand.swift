@@ -5,7 +5,7 @@ import Foundation
 package struct UpdateCommand: AsyncParsableCommand {
     package static let configuration = CommandConfiguration(
         commandName: "update",
-        abstract: "Recompute checksums and update docsync.yml."
+        abstract: "Recompute checksums and update docsync.yml.",
     )
 
     @Option(name: [.short, .long], help: "Path to docsync.yml.")

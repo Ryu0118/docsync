@@ -1,9 +1,8 @@
+@testable import DocSyncKit
 import Foundation
 import Testing
 
-@testable import DocSyncKit
-
-@Suite("UpdateRunner")
+@Suite
 struct UpdateRunnerTests {
     private let fm = FileManager.default
 
@@ -23,8 +22,8 @@ struct UpdateRunnerTests {
         return url
     }
 
-    @Test("writes computed checksum to config file")
-    func writesChecksum() async throws {
+    @Test
+    func `writes computed checksum to config file`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -46,8 +45,8 @@ struct UpdateRunnerTests {
         #expect(updated.rules[0].checksum?.isEmpty == false)
     }
 
-    @Test("checksum after update matches direct calculation")
-    func checksumMatchesCalculator() async throws {
+    @Test
+    func `checksum after update matches direct calculation`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -68,8 +67,8 @@ struct UpdateRunnerTests {
         #expect(config.rules[0].checksum == expected)
     }
 
-    @Test("updates existing stale checksum")
-    func updatesStaleChecksum() async throws {
+    @Test
+    func `updates existing stale checksum`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -91,8 +90,8 @@ struct UpdateRunnerTests {
         #expect(config.rules[0].checksum?.count == 64)
     }
 
-    @Test("updates multiple rules independently")
-    func updateMultipleRules() async throws {
+    @Test
+    func `updates multiple rules independently`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -118,8 +117,8 @@ struct UpdateRunnerTests {
         #expect(config.rules[0].checksum != config.rules[1].checksum)
     }
 
-    @Test("after update, CheckRunner returns allInSync")
-    func afterUpdateCheckPasses() async throws {
+    @Test
+    func `after update, CheckRunner returns allInSync`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -137,16 +136,16 @@ struct UpdateRunnerTests {
         #expect(result.allInSync)
     }
 
-    @Test("throws when config file missing")
-    func missingConfig() async throws {
+    @Test
+    func `throws when config file missing`() async throws {
         let url = URL(filePath: "/tmp/nonexistent-\(UUID().uuidString).yml")
         await #expect(throws: (any Error).self) {
             try await UpdateRunner(configURL: url).run()
         }
     }
 
-    @Test("throws when source file missing")
-    func missingSourceFile() async throws {
+    @Test
+    func `throws when source file missing`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -162,8 +161,8 @@ struct UpdateRunnerTests {
         }
     }
 
-    @Test("preserves rule metadata (name, sources, doc) after update")
-    func preservesMetadata() async throws {
+    @Test
+    func `preserves rule metadata (name, sources, doc) after update`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 

@@ -1,6 +1,6 @@
 import Foundation
 
-package struct DocSyncConfig: Codable, Equatable, Sendable {
+package struct DocSyncConfig: Codable, Equatable {
     package var rules: [Rule]
 
     package init(rules: [Rule]) {
@@ -8,8 +8,8 @@ package struct DocSyncConfig: Codable, Equatable, Sendable {
     }
 }
 
-extension DocSyncConfig {
-    package struct Rule: Codable, Equatable, Sendable {
+package extension DocSyncConfig {
+    struct Rule: Codable, Equatable {
         package let name: String
         package let sources: [String]
         package let doc: String

@@ -24,13 +24,29 @@ Tests/
 - Use `FileManagerProtocol` for all file I/O so tests can mock it
 - Checksums are pure functions: deterministic, sort sources first
 
+## Tooling
+
+| Tool | Version | 用途 |
+|------|---------|------|
+| SwiftFormat | 0.60.1 | コードフォーマット |
+| SwiftLint | 0.63.2 | Lint (strict) |
+| gitnagg | 0.2.1 | コミットサイズ警告 |
+| periphery | 3.6.0 | 未使用コード検出 |
+
+nest でローカル `.nest/bin/` にインストール。`make setup` で一発セットアップ。
+
 ## Dev setup
 
 ```bash
-make setup    # installs SwiftFormat, SwiftLint, gitnagg, periphery via nest + configures git hooks
-make check    # format + lint + test
-swift test    # run tests directly
+make setup        # nest install (SwiftFormat/SwiftLint/gitnagg/periphery) + git hooks 設定
+make check        # format → lint → test を順に実行
+swift test        # テストのみ直接実行
+make format       # SwiftFormat のみ
+make lint         # SwiftLint --strict のみ
 ```
+
+**必須**: `make setup` を先に実行しないと `make format`/`make lint` は失敗する。
+`swift test` はツールなしで実行可能。
 
 ## Config format
 

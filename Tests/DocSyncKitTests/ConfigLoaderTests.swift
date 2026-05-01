@@ -1,9 +1,8 @@
+@testable import DocSyncKit
 import Foundation
 import Testing
 
-@testable import DocSyncKit
-
-@Suite("ConfigLoader")
+@Suite
 struct ConfigLoaderTests {
     private let fm = FileManager.default
     private let loader = ConfigLoader()
@@ -22,8 +21,8 @@ struct ConfigLoaderTests {
 
     // MARK: - load
 
-    @Test("loads valid YAML with checksum")
-    func loadValidYAML() throws {
+    @Test
+    func `loads valid YAML with checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -44,8 +43,8 @@ struct ConfigLoaderTests {
         #expect(config.rules[0].checksum == "abc123")
     }
 
-    @Test("loads YAML without checksum field")
-    func loadNoChecksum() throws {
+    @Test
+    func `loads YAML without checksum field`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -60,8 +59,8 @@ struct ConfigLoaderTests {
         #expect(config.rules[0].checksum == nil)
     }
 
-    @Test("loads YAML with multiple rules")
-    func loadMultipleRules() throws {
+    @Test
+    func `loads YAML with multiple rules`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -80,16 +79,16 @@ struct ConfigLoaderTests {
         #expect(config.rules[1].sources == ["b.ts", "c.ts"])
     }
 
-    @Test("throws fileNotFound for missing file")
-    func fileNotFound() throws {
+    @Test
+    func `throws fileNotFound for missing file`() throws {
         let url = URL(filePath: "/tmp/nonexistent-docsync-\(UUID().uuidString).yml")
         #expect(throws: ConfigError.self) {
             try loader.load(from: url)
         }
     }
 
-    @Test("throws on malformed YAML")
-    func malformedYAML() throws {
+    @Test
+    func `throws on malformed YAML`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let url = try write("rules: [[[invalid", name: "docsync.yml", in: dir)
@@ -100,8 +99,8 @@ struct ConfigLoaderTests {
 
     // MARK: - save
 
-    @Test("save round-trips correctly")
-    func saveRoundTrip() throws {
+    @Test
+    func `save round-trips correctly`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let url = dir.appending(path: "docsync.yml")
@@ -115,8 +114,8 @@ struct ConfigLoaderTests {
         #expect(loaded == config)
     }
 
-    @Test("save updates existing file with new checksum")
-    func saveUpdatesChecksum() throws {
+    @Test
+    func `save updates existing file with new checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """

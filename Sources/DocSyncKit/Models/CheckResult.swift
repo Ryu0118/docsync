@@ -1,10 +1,10 @@
 import Foundation
 
-package struct CheckResult: Equatable, Sendable {
+package struct CheckResult: Equatable {
     package let statuses: [RuleStatus]
 
     package var allInSync: Bool {
-        statuses.allSatisfy { $0.isInSync }
+        statuses.allSatisfy(\.isInSync)
     }
 
     package init(statuses: [RuleStatus]) {
@@ -12,7 +12,7 @@ package struct CheckResult: Equatable, Sendable {
     }
 }
 
-package enum RuleStatus: Equatable, Sendable {
+package enum RuleStatus: Equatable {
     case inSync(ruleName: String)
     case outOfSync(ruleName: String, doc: String)
     case missingChecksum(ruleName: String)

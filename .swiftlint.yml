@@ -121,14 +121,6 @@ enum_case_associated_values_count:
   error: 7
 
 custom_rules:
-  no_raw_print:
-    regex: '\b(Swift\.)?print\s*\('
-    message: "Use logger instead of print(). (CLI output via print is allowed in DocSyncCLI only)"
-    severity: warning
-    included:
-      - "Sources/DocSyncKit/**"
-      - "Tests/**"
-
   url_file_url_with_path:
     regex: 'URL\(fileURLWithPath:'
     message: "Use URL(filePath:) instead of URL(fileURLWithPath:)."

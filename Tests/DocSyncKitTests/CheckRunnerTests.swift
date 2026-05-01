@@ -1,9 +1,8 @@
+@testable import DocSyncKit
 import Foundation
 import Testing
 
-@testable import DocSyncKit
-
-@Suite("CheckRunner")
+@Suite
 struct CheckRunnerTests {
     private let fm = FileManager.default
 
@@ -43,8 +42,8 @@ struct CheckRunnerTests {
 
     // MARK: - Tests
 
-    @Test("returns inSync when checksum matches")
-    func inSync() async throws {
+    @Test
+    func `returns inSync when checksum matches`() async throws {
         let configURL = try makeInSyncSetup()
         defer { try? fm.removeItem(at: configURL.deletingLastPathComponent()) }
 
@@ -58,8 +57,8 @@ struct CheckRunnerTests {
         }
     }
 
-    @Test("returns outOfSync when source file changes")
-    func outOfSync() async throws {
+    @Test
+    func `returns outOfSync when source file changes`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -84,8 +83,8 @@ struct CheckRunnerTests {
         }
     }
 
-    @Test("returns missingChecksum when no checksum stored")
-    func missingChecksum() async throws {
+    @Test
+    func `returns missingChecksum when no checksum stored`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -108,8 +107,8 @@ struct CheckRunnerTests {
         }
     }
 
-    @Test("returns missingChecksum for empty string checksum")
-    func emptyChecksum() async throws {
+    @Test
+    func `returns missingChecksum for empty string checksum`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -133,8 +132,8 @@ struct CheckRunnerTests {
         }
     }
 
-    @Test("handles multiple rules with mixed statuses")
-    func multipleRulesMixed() async throws {
+    @Test
+    func `handles multiple rules with mixed statuses`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -173,8 +172,8 @@ struct CheckRunnerTests {
         }
     }
 
-    @Test("all rules in sync produces allInSync=true")
-    func allInSync() async throws {
+    @Test
+    func `all rules in sync produces allInSync=true`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -200,8 +199,8 @@ struct CheckRunnerTests {
         #expect(result.allInSync)
     }
 
-    @Test("empty rules list returns allInSync=true")
-    func emptyRules() async throws {
+    @Test
+    func `empty rules list returns allInSync=true`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -213,16 +212,16 @@ struct CheckRunnerTests {
         #expect(result.statuses.isEmpty)
     }
 
-    @Test("throws when config file missing")
-    func missingConfig() async throws {
+    @Test
+    func `throws when config file missing`() async throws {
         let url = URL(filePath: "/tmp/nonexistent-\(UUID().uuidString).yml")
         await #expect(throws: (any Error).self) {
             try await CheckRunner(configURL: url).run()
         }
     }
 
-    @Test("throws when source file missing")
-    func missingSourceFile() async throws {
+    @Test
+    func `throws when source file missing`() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 

@@ -8,7 +8,7 @@ package struct DocSyncCommand: AsyncParsableCommand {
         subcommands: [
             CheckCommand.self,
             UpdateCommand.self,
-        ]
+        ],
     )
 
     package init() {}

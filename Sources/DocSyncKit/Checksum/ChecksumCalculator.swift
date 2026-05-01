@@ -6,7 +6,7 @@ package enum ChecksumCalculator {
     package static func calculate(
         sources: [String],
         relativeTo base: URL,
-        fileManager: some FileManagerProtocol
+        fileManager: some FileManagerProtocol,
     ) throws -> String {
         let sorted = sources.sorted()
         var hasher = SHA256()

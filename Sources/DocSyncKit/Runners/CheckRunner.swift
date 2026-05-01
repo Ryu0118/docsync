@@ -1,18 +1,18 @@
 import FileManagerProtocol
 import Foundation
 
-package struct CheckRunner: Sendable {
+package struct CheckRunner {
     private let configURL: URL
     private let fileManager: any FileManagerProtocol
     private let configLoader: ConfigLoader
 
     package init(
         configURL: URL,
-        fileManager: some FileManagerProtocol = FileManager.default
+        fileManager: some FileManagerProtocol = FileManager.default,
     ) {
         self.configURL = configURL
         self.fileManager = fileManager
-        self.configLoader = ConfigLoader(fileManager: fileManager)
+        configLoader = ConfigLoader(fileManager: fileManager)
     }
 
     package func run() async throws -> CheckResult {
@@ -34,7 +34,7 @@ package struct CheckRunner: Sendable {
         let computed = try ChecksumCalculator.calculate(
             sources: rule.sources,
             relativeTo: base,
-            fileManager: fileManager
+            fileManager: fileManager,
         )
         if computed == stored {
             return .inSync(ruleName: rule.name)

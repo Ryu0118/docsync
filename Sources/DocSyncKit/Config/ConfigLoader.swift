@@ -2,7 +2,7 @@ import FileManagerProtocol
 import Foundation
 import Yams
 
-package struct ConfigLoader: Sendable {
+package struct ConfigLoader {
     private let fileManager: any FileManagerProtocol
 
     package init(fileManager: some FileManagerProtocol = FileManager.default) {

@@ -5,7 +5,7 @@ import Foundation
 package struct CheckCommand: AsyncParsableCommand {
     package static let configuration = CommandConfiguration(
         commandName: "check",
-        abstract: "Verify that docs are in sync with source files."
+        abstract: "Verify that docs are in sync with source files.",
     )
 
     @Option(name: [.short, .long], help: "Path to docsync.yml.")

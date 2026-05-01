@@ -1,25 +1,24 @@
+@testable import DocSyncKit
 import Foundation
 import Testing
 import Yams
 
-@testable import DocSyncKit
-
-@Suite("DocSyncConfig")
+@Suite
 struct DocSyncConfigTests {
-    @Test("round-trip encoding/decoding preserves all fields")
-    func roundTrip() throws {
+    @Test
+    func `round trip encoding decoding preserves all fields`() throws {
         let original = DocSyncConfig(rules: [
             DocSyncConfig.Rule(
                 name: "api-doc",
                 sources: ["src/api/user.ts", "src/api/order.ts"],
                 doc: "docs/api.md",
-                checksum: "abc123"
+                checksum: "abc123",
             ),
             DocSyncConfig.Rule(
                 name: "readme",
                 sources: ["src/main.ts"],
                 doc: "README.md",
-                checksum: nil
+                checksum: nil,
             ),
         ])
 
@@ -28,8 +27,8 @@ struct DocSyncConfigTests {
         #expect(decoded == original)
     }
 
-    @Test("Rule with no checksum decodes as nil")
-    func ruleNoChecksum() throws {
+    @Test
+    func `rule with no checksum decodes as nil`() throws {
         let yaml = """
         rules:
           - name: api-doc
@@ -42,8 +41,8 @@ struct DocSyncConfigTests {
         #expect(config.rules[0].checksum == nil)
     }
 
-    @Test("Rule with checksum decodes correctly")
-    func ruleWithChecksum() throws {
+    @Test
+    func `rule with checksum decodes correctly`() throws {
         let yaml = """
         rules:
           - name: my-rule
@@ -56,17 +55,17 @@ struct DocSyncConfigTests {
         #expect(config.rules[0].checksum == "deadbeef")
     }
 
-    @Test("empty rules list decodes")
-    func emptyRules() throws {
+    @Test
+    func `empty rules list decodes`() throws {
         let yaml = "rules: []\n"
         let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
         #expect(config.rules.isEmpty)
     }
 
-    @Test("multiple sources preserved in order")
-    func multipleSourcesOrder() throws {
+    @Test
+    func `multiple sources preserved in order`() throws {
         let sources = ["c.ts", "a.ts", "b.ts"]
-        let rule = DocSyncConfig.Rule(name: "r", sources: sources, doc: "d.md", checksum: nil)
+        let rule = DocSyncConfig.Rule(name: "rrr", sources: sources, doc: "d.md", checksum: nil)
         let config = DocSyncConfig(rules: [rule])
         let yaml = try YAMLEncoder().encode(config)
         let decoded = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)

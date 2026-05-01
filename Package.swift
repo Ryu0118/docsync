@@ -18,21 +18,21 @@ let package = Package(
             name: "docsync",
             dependencies: [
                 "DocSyncCLI",
-            ]
+            ],
         ),
         .target(
             name: "DocSyncCLI",
             dependencies: [
                 "DocSyncKit",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ]
+            ],
         ),
         .target(
             name: "DocSyncKit",
             dependencies: [
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "FileManagerProtocol", package: "FileManagerProtocol"),
-            ]
+            ],
         ),
         .testTarget(
             name: "DocSyncKitTests",
@@ -43,7 +43,7 @@ let package = Package(
             ],
             exclude: [
                 "Fixtures",
-            ]
+            ],
         ),
-    ]
+    ],
 )

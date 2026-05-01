@@ -1,14 +1,10 @@
+@testable import DocSyncKit
 import Foundation
 import Testing
 
-@testable import DocSyncKit
-
-@Suite("ChecksumCalculator")
+@Suite
 struct ChecksumCalculatorTests {
     private let fm = FileManager.default
-    private var tmpDir: URL!
-
-    // MARK: - Helpers
 
     private func makeTempDir() throws -> URL {
         let dir = fm.temporaryDirectory.appending(path: UUID().uuidString)
@@ -21,10 +17,8 @@ struct ChecksumCalculatorTests {
         try content.write(to: url, atomically: true, encoding: .utf8)
     }
 
-    // MARK: - Tests
-
-    @Test("single file produces non-empty hex string")
-    func singleFile() throws {
+    @Test
+    func `single file produces non empty hex string`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("hello", name: "a.ts", in: dir)
@@ -32,14 +26,14 @@ struct ChecksumCalculatorTests {
         let checksum = try ChecksumCalculator.calculate(
             sources: ["a.ts"],
             relativeTo: dir,
-            fileManager: fm
+            fileManager: fm,
         )
         #expect(!checksum.isEmpty)
         #expect(checksum.count == 64)
     }
 
-    @Test("same content always produces same checksum")
-    func deterministic() throws {
+    @Test
+    func `same content always produces same checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("consistent", name: "a.ts", in: dir)
@@ -49,8 +43,8 @@ struct ChecksumCalculatorTests {
         #expect(first == second)
     }
 
-    @Test("changing file content changes checksum")
-    func contentChange() throws {
+    @Test
+    func `changing file content changes checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("version1", name: "a.ts", in: dir)
@@ -62,20 +56,20 @@ struct ChecksumCalculatorTests {
         #expect(before != after)
     }
 
-    @Test("multiple files - order of sources list does not affect checksum")
-    func sourcesAreSorted() throws {
+    @Test
+    func `sources are sorted before hashing`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("aaa", name: "a.ts", in: dir)
         try write("bbb", name: "b.ts", in: dir)
 
-        let ab = try ChecksumCalculator.calculate(sources: ["a.ts", "b.ts"], relativeTo: dir, fileManager: fm)
-        let ba = try ChecksumCalculator.calculate(sources: ["b.ts", "a.ts"], relativeTo: dir, fileManager: fm)
-        #expect(ab == ba)
+        let checksumAB = try ChecksumCalculator.calculate(sources: ["a.ts", "b.ts"], relativeTo: dir, fileManager: fm)
+        let checksumBA = try ChecksumCalculator.calculate(sources: ["b.ts", "a.ts"], relativeTo: dir, fileManager: fm)
+        #expect(checksumAB == checksumBA)
     }
 
-    @Test("empty file produces a valid checksum")
-    func emptyFile() throws {
+    @Test
+    func `empty file produces valid checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("", name: "empty.ts", in: dir)
@@ -84,8 +78,8 @@ struct ChecksumCalculatorTests {
         #expect(checksum.count == 64)
     }
 
-    @Test("missing source file throws ChecksumError")
-    func missingFile() throws {
+    @Test
+    func `missing source file throws checksum error`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -94,20 +88,20 @@ struct ChecksumCalculatorTests {
         }
     }
 
-    @Test("two rules with different content produce different checksums")
-    func differentContent() throws {
+    @Test
+    func `different content produces different checksums`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("rule1 content", name: "r1.ts", in: dir)
         try write("rule2 content", name: "r2.ts", in: dir)
 
-        let c1 = try ChecksumCalculator.calculate(sources: ["r1.ts"], relativeTo: dir, fileManager: fm)
-        let c2 = try ChecksumCalculator.calculate(sources: ["r2.ts"], relativeTo: dir, fileManager: fm)
-        #expect(c1 != c2)
+        let checksumR1 = try ChecksumCalculator.calculate(sources: ["r1.ts"], relativeTo: dir, fileManager: fm)
+        let checksumR2 = try ChecksumCalculator.calculate(sources: ["r2.ts"], relativeTo: dir, fileManager: fm)
+        #expect(checksumR1 != checksumR2)
     }
 
-    @Test("binary data in file still produces valid checksum")
-    func binaryData() throws {
+    @Test
+    func `binary data produces valid checksum`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let bytes: [UInt8] = [0x00, 0xFF, 0x0A, 0x1B, 0x7F]
@@ -118,8 +112,8 @@ struct ChecksumCalculatorTests {
         #expect(checksum.count == 64)
     }
 
-    @Test("checksum is a valid lowercase hex string")
-    func hexFormat() throws {
+    @Test
+    func `checksum is lowercase hex string`() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("test", name: "t.ts", in: dir)
