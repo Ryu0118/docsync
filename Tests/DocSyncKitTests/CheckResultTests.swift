@@ -83,7 +83,7 @@ struct CheckResultTests {
         #expect(output?.decision == "block")
         #expect(output?.reason.contains("api-doc") == true)
         #expect(output?.reason.contains("docs/api.md") == true)
-        #expect(output?.reason.contains("docsync update") == true)
+        #expect(output?.reason.contains("docsync update-checksum") == true)
     }
 
     @Test
@@ -96,7 +96,7 @@ struct CheckResultTests {
         #expect(output?.decision == "block")
         #expect(output?.reason.contains("api-doc") == true)
         #expect(output?.reason.contains("Update the API reference") == true)
-        #expect(output?.reason.contains("docsync update") == true)
+        #expect(output?.reason.contains("docsync update-checksum") == true)
     }
 
     @Test
@@ -106,7 +106,7 @@ struct CheckResultTests {
         #expect(output != nil)
         #expect(output?.decision == "block")
         #expect(output?.reason.contains("guide") == true)
-        #expect(output?.reason.contains("docsync update") == true)
+        #expect(output?.reason.contains("docsync update-checksum") == true)
     }
 
     @Test

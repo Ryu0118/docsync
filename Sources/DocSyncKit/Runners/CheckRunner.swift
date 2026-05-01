@@ -77,12 +77,12 @@ package struct CheckRunner {
         case let .outOfSync(name, doc, message):
             let body = message ?? "sources changed but \(doc) not updated"
             logger.error(
-                "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  After updating the docs, run `docsync update` to refresh the checksum.",
+                "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  After updating the docs, run `docsync update-checksum` to refresh the checksum.",
                 metadata: .plainOutput,
             )
         case let .missingChecksum(name):
             logger.warning(
-                "[docsync] ⚠️  no checksum stored: \(name) (run `docsync update` first)",
+                "[docsync] ⚠️  no checksum stored: \(name) (run `docsync update-checksum` first)",
                 metadata: .plainOutput,
             )
         }

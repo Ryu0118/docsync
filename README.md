@@ -63,10 +63,10 @@ rules:
 ### 2. Initialize checksums
 
 ```bash
-docsync update
+docsync update-checksum
 ```
 
-Skip this step if you're adding docsync to an existing project where the docs are already up to date — just run `docsync update` once to stamp the initial checksums, then commit `docsync.yml`.
+Skip this step if you're adding docsync to an existing project where the docs are already up to date — just run `docsync update-checksum` once to stamp the initial checksums, then commit `docsync.yml`.
 
 ### 3. Check for drift
 
@@ -77,13 +77,13 @@ docsync check
 ```
 [docsync] ❌ out of sync: api-doc
   - sources changed but docs/api.md not updated
-  After updating the docs, run `docsync update` to refresh the checksum.
+  After updating the docs, run `docsync update-checksum` to refresh the checksum.
 ```
 
 ### 4. Update checksums after editing docs
 
 ```bash
-docsync update
+docsync update-checksum
 ```
 
 ---

@@ -3,7 +3,7 @@ SWIFTLINT := .nest/bin/swiftlint
 SWIFT_LINTER := .nest/bin/my-swift-linter
 DOCSYNC := $(shell test -x .build/release/docsync && echo .build/release/docsync || echo swift run docsync)
 
-.PHONY: nest hooks setup format lint ast-lint format-lint test build release check docsync docsync-update
+.PHONY: nest hooks setup format lint ast-lint format-lint test build release check docsync docsync-update-checksum
 
 nest:
 	./scripts/nest.sh bootstrap nestfile.yaml
@@ -39,7 +39,7 @@ release:
 docsync:
 	$(DOCSYNC) check
 
-docsync-update:
+docsync-update-checksum:
 	$(DOCSYNC) update
 
 check: format lint ast-lint test docsync
