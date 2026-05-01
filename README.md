@@ -4,9 +4,9 @@
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/Ryu0118/docsync/releases/latest)
 [![License](https://img.shields.io/badge/License-MIT-007ec6?style=flat-square)](LICENSE)
 
-**Stop letting docs rot. Keep them honest with every code change.**
+**Keep docs fresh for agentic coding workflows.**
 
-`docsync` ties documentation to source files via SHA-256 checksums. When the sources drift, `docsync check` exits non-zero — so your CI catches stale docs before they reach reviewers. Built for agentic coding workflows where AI agents need reliable, up-to-date context.
+`docsync` ties documentation to source files. When sources change without a matching doc update, `docsync check` exits non-zero — so stale docs never mislead your AI agent.
 
 ## Features
 
