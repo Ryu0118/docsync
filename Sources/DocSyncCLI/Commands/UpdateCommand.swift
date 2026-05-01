@@ -16,7 +16,7 @@ package struct UpdateCommand: AsyncParsableCommand {
     package mutating func run() async throws {
         let configURL = resolvedConfigURL()
         try await UpdateRunner(configURL: configURL).run()
-        print("[docsync] ✅ checksums updated")
+        logger.info("[docsync] ✅ checksums updated", metadata: .plainOutput)
     }
 
     private func resolvedConfigURL() -> URL {

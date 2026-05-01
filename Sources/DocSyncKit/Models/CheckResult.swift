@@ -10,6 +10,21 @@ package struct CheckResult: Equatable {
     package init(statuses: [RuleStatus]) {
         self.statuses = statuses
     }
+
+    /// Returns a Claude Code hook payload when any rule is out of sync, otherwise nil.
+    package var claudeHookOutput: ClaudeHookOutput? {
+        let lines = statuses.compactMap { status -> String? in
+            switch status {
+            case let .outOfSync(name, doc):
+                return "out of sync: \(name) — sources changed but \(doc) not updated"
+            case let .missingChecksum(name):
+                return "no checksum stored: \(name) (run `docsync update` first)"
+            case .inSync:
+                return nil
+            }
+        }
+        return lines.isEmpty ? nil : ClaudeHookOutput(reason: lines.joined(separator: "\n"))
+    }
 }
 
 package enum RuleStatus: Equatable {
