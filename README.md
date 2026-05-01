@@ -10,6 +10,7 @@
 
 - **Checksum-based drift detection** — deterministic SHA-256 over sorted source file contents
 - **YAML config** — human-readable, diff-friendly `docsync.yml`
+- **Custom error messages** — per-rule `message` field to guide contributors on what to update
 - **Two commands** — `check` (read-only, CI-safe) and `update` (rewrites checksums)
 - **Cross-platform** — macOS and Linux (x86_64 / arm64)
 - **No runtime dependencies** — single static binary on Linux
@@ -69,6 +70,8 @@ rules:
 
 ### 2. Store the initial checksums
 
+Before running `docsync check` for the first time, initialize the checksums:
+
 ```bash
 docsync update
 ```
@@ -84,6 +87,12 @@ rules:
     doc: docs/api.md
     checksum: "a3f2e1..."
 ```
+
+> **Note:** If you run `docsync check` before `docsync update`, you will see:
+> ```
+> [docsync] ⚠️  no checksum stored: api-doc — run `docsync update` first to initialize the checksum.
+> ```
+> This is expected on first setup. Run `docsync update` once to initialize, then commit the updated `docsync.yml`.
 
 ### 3. Check for drift
 
@@ -102,9 +111,47 @@ Output when a source changed but the doc was not updated:
 ```
 [docsync] ❌ out of sync: api-doc
   - sources changed but docs/api.md not updated
+  After updating the docs, run `docsync update` to refresh the checksum.
 ```
 
 Exit code `1` when out of sync, `0` when all rules pass.
+
+### 4. Update checksums after editing docs
+
+Once you have updated the documentation, refresh the stored checksum:
+
+```bash
+docsync update
+```
+
+Then commit both the updated doc and the updated `docsync.yml` together.
+
+---
+
+## Custom error messages
+
+Use the `message` field to give contributors precise instructions on what to update:
+
+```yaml
+rules:
+  - name: api-doc
+    sources:
+      - src/api/user.ts
+      - src/api/order.ts
+    doc: docs/api.md
+    message: "The public API changed — update docs/api.md to reflect the new endpoints."
+    checksum: "a3f2e1..."
+```
+
+When out of sync, `docsync check` outputs:
+
+```
+[docsync] ❌ out of sync: api-doc
+  - The public API changed — update docs/api.md to reflect the new endpoints.
+  After updating the docs, run `docsync update` to refresh the checksum.
+```
+
+The same message appears in the `--claude-hook` JSON payload, so AI agents receive the same guidance.
 
 ---
 
@@ -123,7 +170,7 @@ A complete workflow example lives in [`.github/workflows/test.yml`](.github/work
 
 ```sh
 #!/bin/sh
-docsync check || { echo "Run 'docsync update' and commit the updated docsync.yml"; exit 1; }
+docsync check || { echo "Docs are out of sync. Update the docs then run 'docsync update'."; exit 1; }
 ```
 
 ---
@@ -141,6 +188,12 @@ OPTIONS:
   -c, --config <path>   Path to docsync.yml (default: docsync.yml)
   -h, --help            Show help information.
 ```
+
+### `check` flags
+
+| Flag | Description |
+|------|-------------|
+| `--claude-hook` | Emit Claude Code PostToolUse hook JSON to stdout and always exit 0. |
 
 ---
 
