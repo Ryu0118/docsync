@@ -19,4 +19,4 @@ rules:
   message: Sources that affect the architecture or config format changed. Review the
     diff and update CLAUDE.md (project structure, architecture rules, config format)
     only if something the docs describe has changed.
-  checksum: 64bd4edf1c1b3dd08030f0e9aa2b6257346a523411989a65fe63425fecd476ce
+  checksum: 49ba92812bc9005693c76cf2bac79d064f5631c45f71fdad76c3bfbff8b476e5
