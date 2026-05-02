@@ -1,12 +1,14 @@
 import FileManagerProtocol
 import Foundation
 
+/// Recomputes checksums for all rules and writes them back to docsync.yml.
 package struct UpdateRunner {
     private let mode: UpdateRunnerMode
     private let configURL: URL
     private let fileManager: any FileManagerProtocol
     private let configLoader: ConfigLoader
 
+    /// Creates a runner for the given config file.
     package init(
         configURL: URL,
         mode: UpdateRunnerMode = .updateOnly,
@@ -18,6 +20,7 @@ package struct UpdateRunner {
         configLoader = ConfigLoader(fileManager: fileManager)
     }
 
+    /// Recomputes all checksums and saves the updated config.
     package func run() async throws {
         var config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
@@ -38,6 +41,7 @@ package struct UpdateRunner {
     }
 }
 
+/// Execution mode for ``UpdateRunner``.
 package enum UpdateRunnerMode: Equatable {
     case updateOnly
     case commandLine

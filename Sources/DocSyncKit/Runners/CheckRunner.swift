@@ -1,12 +1,14 @@
 import FileManagerProtocol
 import Foundation
 
+/// Evaluates all rules in a docsync config and reports which are in sync.
 package struct CheckRunner {
     private let mode: CheckRunnerMode
     private let configURL: URL
     private let fileManager: any FileManagerProtocol
     private let configLoader: ConfigLoader
 
+    /// Creates a runner for the given config file.
     package init(
         configURL: URL,
         mode: CheckRunnerMode = .evaluateOnly,
@@ -18,6 +20,7 @@ package struct CheckRunner {
         configLoader = ConfigLoader(fileManager: fileManager)
     }
 
+    /// Runs the check and returns the result.
     package func run() async throws -> CheckResult {
         switch mode {
         case .claudeHook:
@@ -51,12 +54,7 @@ package struct CheckRunner {
     private func evaluateConfig() throws -> CheckResult {
         let config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
-
-        var statuses: [RuleStatus] = []
-        for rule in config.rules {
-            let status = try evaluate(rule: rule, base: base)
-            statuses.append(status)
-        }
+        let statuses = try config.rules.map { try evaluate(rule: $0, base: base) }
         return CheckResult(statuses: statuses)
     }
 
@@ -97,14 +95,13 @@ package struct CheckRunner {
             relativeTo: base,
             fileManager: fileManager,
         )
-        return if computed == stored {
-            .inSync(ruleName: rule.name)
-        } else {
-            .outOfSync(ruleName: rule.name, doc: rule.doc, message: rule.message)
-        }
+        return computed == stored
+            ? .inSync(ruleName: rule.name)
+            : .outOfSync(ruleName: rule.name, doc: rule.doc, message: rule.message)
     }
 }
 
+/// Execution mode for ``CheckRunner``.
 package enum CheckRunnerMode: Equatable {
     case evaluateOnly
     case commandLine
@@ -112,6 +109,7 @@ package enum CheckRunnerMode: Equatable {
     case codexHook
 }
 
+/// Errors thrown by ``CheckRunner``.
 package enum CheckRunnerError: Error, Equatable {
     case outOfSync
 }
