@@ -194,23 +194,43 @@ rules:
 ## Command reference
 
 ```
+OVERVIEW: Keep documentation in sync with source code.
+
 USAGE: docsync <subcommand>
 
-SUBCOMMANDS:
-  check             Verify that docs are in sync with source files.
-  update-checksum   Recompute checksums and update docsync.yml.
-
 OPTIONS:
-  -c, --config <path>   Path to docsync.yml (default: docsync.yml)
-  -h, --help            Show help information.
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  check                   Verify that docs are in sync with source files.
+  update-checksum         Recompute checksums and update docsync.yml.
+
+  See 'docsync help <subcommand>' for detailed help.
 ```
 
-### `check` flags
+```
+OVERVIEW: Verify that docs are in sync with source files.
 
-| Flag | Description |
-|------|-------------|
-| `--claude-hook` | Emit Claude Code PostToolUse hook JSON to stdout and always exit 0. |
-| `--codex-hook` | Emit Codex PostToolUse hook JSON to stdout and always exit 0. |
+USAGE: docsync check [--config <config>] [--claude-hook] [--codex-hook]
+
+OPTIONS:
+  -c, --config <config>   Path to docsync.yml. (default: docsync.yml)
+  --claude-hook           Emit Claude Code hook JSON to stdout and exit 0.
+                          Mutually exclusive with --codex-hook.
+  --codex-hook            Emit Codex hook JSON to stdout and exit 0. Mutually
+                          exclusive with --claude-hook.
+  -h, --help              Show help information.
+```
+
+```
+OVERVIEW: Recompute checksums and update docsync.yml.
+
+USAGE: docsync update-checksum [--config <config>]
+
+OPTIONS:
+  -c, --config <config>   Path to docsync.yml. (default: docsync.yml)
+  -h, --help              Show help information.
+```
 
 ---
 
