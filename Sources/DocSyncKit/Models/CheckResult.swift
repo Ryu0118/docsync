@@ -1,12 +1,16 @@
 import Foundation
 
+/// The aggregated result of checking all rules in a docsync config.
 package struct CheckResult: Equatable {
+    /// The per-rule statuses produced by the check.
     package let statuses: [RuleStatus]
 
+    /// `true` when every rule is in sync.
     package var allInSync: Bool {
         statuses.allSatisfy(\.isInSync)
     }
 
+    /// Creates a result from the given statuses.
     package init(statuses: [RuleStatus]) {
         self.statuses = statuses
     }
@@ -37,11 +41,13 @@ package struct CheckResult: Equatable {
     }
 }
 
+/// The sync status of a single rule.
 package enum RuleStatus: Equatable {
     case inSync(ruleName: String)
     case outOfSync(ruleName: String, doc: String, message: String?)
     case missingChecksum(ruleName: String)
 
+    /// The rule name associated with this status.
     package var ruleName: String {
         switch self {
         case let .inSync(name): name
@@ -50,6 +56,7 @@ package enum RuleStatus: Equatable {
         }
     }
 
+    /// `true` when this status is `.inSync`.
     package var isInSync: Bool {
         if case .inSync = self { return true }
         return false
