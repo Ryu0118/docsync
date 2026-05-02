@@ -5,7 +5,7 @@ import Testing
 @Suite
 struct CheckResultTests {
     @Test
-    func `all in sync true when all in sync`() {
+    func allInSyncTrueWhenAllInSync() {
         let result = CheckResult(statuses: [
             .inSync(ruleName: "r1"),
             .inSync(ruleName: "r2"),
@@ -14,7 +14,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `all in sync false when out of sync`() {
+    func allInSyncFalseWhenOutOfSync() {
         let result = CheckResult(statuses: [
             .inSync(ruleName: "r1"),
             .outOfSync(ruleName: "r2", doc: "d.md", message: nil),
@@ -23,7 +23,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `all in sync false when missing checksum`() {
+    func allInSyncFalseWhenMissingChecksum() {
         let result = CheckResult(statuses: [
             .missingChecksum(ruleName: "r1"),
         ])
@@ -31,27 +31,27 @@ struct CheckResultTests {
     }
 
     @Test
-    func `all in sync true for empty statuses`() {
+    func allInSyncTrueForEmptyStatuses() {
         let result = CheckResult(statuses: [])
         #expect(result.allInSync)
     }
 
     @Test
-    func `rule name returns correct name for each case`() {
+    func ruleNameReturnsCorrectNameForEachCase() {
         #expect(RuleStatus.inSync(ruleName: "alpha").ruleName == "alpha")
         #expect(RuleStatus.outOfSync(ruleName: "beta", doc: "d.md", message: nil).ruleName == "beta")
         #expect(RuleStatus.missingChecksum(ruleName: "gamma").ruleName == "gamma")
     }
 
     @Test
-    func `is in sync returns correct value`() {
+    func isInSyncReturnsCorrectValue() {
         #expect(RuleStatus.inSync(ruleName: "r").isInSync)
         #expect(!RuleStatus.outOfSync(ruleName: "r", doc: "d.md", message: nil).isInSync)
         #expect(!RuleStatus.missingChecksum(ruleName: "r").isInSync)
     }
 
     @Test
-    func `rule status equality`() {
+    func ruleStatusEquality() {
         #expect(RuleStatus.inSync(ruleName: "r") == RuleStatus.inSync(ruleName: "r"))
         #expect(
             RuleStatus.outOfSync(ruleName: "r", doc: "d.md", message: nil) ==
@@ -64,19 +64,19 @@ struct CheckResultTests {
     }
 
     @Test
-    func `claudeHookOutput is nil when all in sync`() {
+    func claudeHookOutputIsNilWhenAllInSync() {
         let result = CheckResult(statuses: [.inSync(ruleName: "r1"), .inSync(ruleName: "r2")])
         #expect(result.claudeHookOutput == nil)
     }
 
     @Test
-    func `claudeHookOutput is nil for empty statuses`() {
+    func claudeHookOutputIsNilForEmptyStatuses() {
         let result = CheckResult(statuses: [])
         #expect(result.claudeHookOutput == nil)
     }
 
     @Test
-    func `claudeHookOutput blocks when outOfSync with default message`() {
+    func claudeHookOutputBlocksWhenOutOfSyncWithDefaultMessage() {
         let result = CheckResult(statuses: [.outOfSync(ruleName: "api-doc", doc: "docs/api.md", message: nil)])
         let output = result.claudeHookOutput
         #expect(output != nil)
@@ -87,7 +87,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `claudeHookOutput blocks when outOfSync with custom message`() {
+    func claudeHookOutputBlocksWhenOutOfSyncWithCustomMessage() {
         let result = CheckResult(statuses: [
             .outOfSync(ruleName: "api-doc", doc: "docs/api.md", message: "Update the API reference"),
         ])
@@ -100,7 +100,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `claudeHookOutput blocks when missingChecksum`() {
+    func claudeHookOutputBlocksWhenMissingChecksum() {
         let result = CheckResult(statuses: [.missingChecksum(ruleName: "guide")])
         let output = result.claudeHookOutput
         #expect(output != nil)
@@ -110,7 +110,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `claudeHookOutput aggregates multiple failures`() {
+    func claudeHookOutputAggregatesMultipleFailures() {
         let result = CheckResult(statuses: [
             .outOfSync(ruleName: "api-doc", doc: "docs/api.md", message: nil),
             .missingChecksum(ruleName: "guide"),
@@ -124,13 +124,13 @@ struct CheckResultTests {
     }
 
     @Test
-    func `codexHookOutput is nil when all in sync`() {
+    func codexHookOutputIsNilWhenAllInSync() {
         let result = CheckResult(statuses: [.inSync(ruleName: "r1")])
         #expect(result.codexHookOutput == nil)
     }
 
     @Test
-    func `codexHookOutput blocks when outOfSync`() {
+    func codexHookOutputBlocksWhenOutOfSync() {
         let result = CheckResult(statuses: [.outOfSync(ruleName: "api-doc", doc: "docs/api.md", message: nil)])
         let output = result.codexHookOutput
         #expect(output != nil)
@@ -140,7 +140,7 @@ struct CheckResultTests {
     }
 
     @Test
-    func `codexHookOutput and claudeHookOutput produce same payload`() {
+    func codexHookOutputAndClaudeHookOutputProduceSamePayload() {
         let result = CheckResult(statuses: [.outOfSync(ruleName: "r", doc: "d.md", message: "Update it")])
         #expect(result.codexHookOutput == result.claudeHookOutput)
     }

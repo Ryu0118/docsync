@@ -19,7 +19,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `single file produces non empty hex string`() throws {
+    func singleFileProducesNonEmptyHexString() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("hello", name: "a.ts", in: dir)
@@ -34,7 +34,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `same content always produces same checksum`() throws {
+    func sameContentAlwaysProducesSameChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("consistent", name: "a.ts", in: dir)
@@ -45,7 +45,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `changing file content changes checksum`() throws {
+    func changingFileContentChangesChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("version1", name: "a.ts", in: dir)
@@ -58,7 +58,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `sources are sorted before hashing`() throws {
+    func sourcesAreSortedBeforeHashing() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("aaa", name: "a.ts", in: dir)
@@ -70,7 +70,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `empty file produces valid checksum`() throws {
+    func emptyFileProducesValidChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("", name: "empty.ts", in: dir)
@@ -80,7 +80,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `missing source file throws checksum error`() throws {
+    func missingSourceFileThrowsChecksumError() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -90,7 +90,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `different content produces different checksums`() throws {
+    func differentContentProducesDifferentChecksums() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("rule1 content", name: "r1.ts", in: dir)
@@ -102,7 +102,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `binary data produces valid checksum`() throws {
+    func binaryDataProducesValidChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let bytes: [UInt8] = [0x00, 0xFF, 0x0A, 0x1B, 0x7F]
@@ -114,7 +114,7 @@ struct ChecksumCalculatorTests {
     }
 
     @Test
-    func `checksum is lowercase hex string`() throws {
+    func checksumIsLowercaseHexString() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         try write("test", name: "t.ts", in: dir)

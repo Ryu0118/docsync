@@ -6,19 +6,19 @@ import Testing
 @Suite
 struct ClaudeHookOutputTests {
     @Test
-    func `decision is always block`() {
+    func decisionIsAlwaysBlock() {
         let output = ClaudeHookOutput(reason: "anything")
         #expect(output.decision == "block")
     }
 
     @Test
-    func `jsonString returns block decision with reason`() {
+    func jsonStringReturnsBlockDecisionWithReason() {
         let output = ClaudeHookOutput(reason: "Docs out of sync.")
         #expect(output.jsonString == "{\"decision\":\"block\",\"reason\":\"Docs out of sync.\"}")
     }
 
     @Test
-    func `jsonString escapes double quotes in reason`() throws {
+    func jsonStringEscapesDoubleQuotesInReason() throws {
         let message = #"Stop: "update" docs"#
         let output = ClaudeHookOutput(reason: message)
         let data = Data(output.jsonString.utf8)
@@ -28,7 +28,7 @@ struct ClaudeHookOutputTests {
     }
 
     @Test
-    func `jsonString escapes backslashes in reason`() throws {
+    func jsonStringEscapesBackslashesInReason() throws {
         let message = #"path\to\file"#
         let output = ClaudeHookOutput(reason: message)
         let data = Data(output.jsonString.utf8)
@@ -37,7 +37,7 @@ struct ClaudeHookOutputTests {
     }
 
     @Test
-    func `jsonString escapes newlines in reason`() throws {
+    func jsonStringEscapesNewlinesInReason() throws {
         let message = "line1\nline2"
         let output = ClaudeHookOutput(reason: message)
         let data = Data(output.jsonString.utf8)
@@ -46,7 +46,7 @@ struct ClaudeHookOutputTests {
     }
 
     @Test
-    func `round trips through Codable`() throws {
+    func roundTripsThroughCodable() throws {
         let original = ClaudeHookOutput(reason: "test reason")
         let data = try JSONEncoder().encode(original)
         let decoded = try JSONDecoder().decode(ClaudeHookOutput.self, from: data)
