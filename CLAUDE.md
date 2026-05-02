@@ -56,11 +56,17 @@ swift test        # Run tests directly (no tooling required)
 rules:
   - name: api-doc
     sources:
-      - src/api/user.ts
+      - src/api/user.ts        # literal path
+      - src/api/*.ts           # * matches within one directory
+      - src/**/*.ts            # ** matches recursively
     doc: docs/api.md
     checksum: "<sha256-hex>"
 ```
 
+Glob patterns (`*`, `**`, `?`) are expanded before hashing. A pattern that matches zero files is an error.
+
 ## Checksum algorithm
 
-`sorted(sources) → concatenate file bytes → SHA-256 → lowercase hex`
+`expand_globs(sources) → sort paths → for each path: hash(path + NUL + file_bytes) → SHA-256 → lowercase hex`
+
+Including the file path in the hash means adding or renaming a file changes the checksum even when contents are identical.

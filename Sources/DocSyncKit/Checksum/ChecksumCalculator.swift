@@ -4,20 +4,26 @@ import Foundation
 
 /// Computes a deterministic SHA-256 checksum over a set of source files.
 package enum ChecksumCalculator {
-    /// Returns a lowercase hex SHA-256 digest of the concatenated contents of `sources`, sorted alphabetically.
+    /// Returns a lowercase hex SHA-256 digest over the resolved sources.
+    ///
+    /// Sources are sorted alphabetically after glob expansion. Each file contributes
+    /// its relative path (UTF-8, null-terminated) followed by its contents to the hash,
+    /// so adding or renaming a file changes the checksum even if contents are identical.
     package static func calculate(
         sources: [String],
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> String {
-        let sorted = sources.sorted()
+        let resolved = try GlobExpander.expand(patterns: sources, relativeTo: base, fileManager: fileManager)
         var hasher = SHA256()
-        for path in sorted {
+        for path in resolved {
             let url = base.appending(path: path)
             let data = fileManager.contents(atPath: url.path(percentEncoded: false))
             guard let data else {
                 throw ChecksumError.sourceFileNotFound(url.path(percentEncoded: false))
             }
+            hasher.update(data: Data(path.utf8))
+            hasher.update(data: Data([0x00]))
             hasher.update(data: data)
         }
         let digest = hasher.finalize()
@@ -25,15 +31,18 @@ package enum ChecksumCalculator {
     }
 }
 
-/// Errors thrown by ``ChecksumCalculator``.
+/// Errors thrown by ``ChecksumCalculator`` and ``GlobExpander``.
 package enum ChecksumError: LocalizedError, Equatable {
     case sourceFileNotFound(String)
+    case noGlobMatches(String)
 
     /// Human-readable description of the error.
     package var errorDescription: String? {
         switch self {
         case let .sourceFileNotFound(path):
             "Source file not found: \(path)"
+        case let .noGlobMatches(pattern):
+            "Glob pattern matched no files: \(pattern)"
         }
     }
 }
