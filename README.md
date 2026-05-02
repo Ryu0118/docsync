@@ -14,7 +14,7 @@
 - 🚨 **Detects stale docs automatically** — fails when source changes but the doc isn't updated
 - 🤖 **Agent-aware** — `--claude-hook` / `--codex-hook` feeds structured guidance back to agents so they self-correct instantly
 
-## Installation
+## Install
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/install.sh | bash
@@ -43,6 +43,25 @@ git clone https://github.com/Ryu0118/docsync
 cd docsync
 swift build -c release
 cp .build/release/docsync /usr/local/bin/
+```
+
+## Using docsync with Agent Skills
+
+The recommended way to configure and use docsync is with the **docsync** [Agent Skill](https://agentskills.io). Install it, then your AI agent understands the config syntax, error messages, and best practices — and knows exactly what action to take when `docsync check` fails.
+
+```bash
+# via skills CLI (https://github.com/vercel-labs/skills)
+npx skills add Ryu0118/docsync --skill docsync -g
+
+# or download directly to ~/.agents/skills/ (Agent Skills standard)
+mkdir -p ~/.agents/skills/docsync
+curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/.agents/skills/docsync/SKILL.md \
+  -o ~/.agents/skills/docsync/SKILL.md
+
+# for Claude Code: also install to ~/.claude/skills/
+mkdir -p ~/.claude/skills/docsync
+curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/.agents/skills/docsync/SKILL.md \
+  -o ~/.claude/skills/docsync/SKILL.md
 ```
 
 ---
@@ -181,8 +200,8 @@ rules:
 USAGE: docsync <subcommand>
 
 SUBCOMMANDS:
-  check    Verify that docs are in sync with source files.
-  update   Recompute checksums and update docsync.yml.
+  check             Verify that docs are in sync with source files.
+  update-checksum   Recompute checksums and update docsync.yml.
 
 OPTIONS:
   -c, --config <path>   Path to docsync.yml (default: docsync.yml)
