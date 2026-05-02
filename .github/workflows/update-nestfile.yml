@@ -26,12 +26,10 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
 
       - name: Install nest and bootstrap
-        run: |
-          ./scripts/nest.sh bootstrap nestfile.yaml
-          echo "$HOME/.nest/bin" >> "$GITHUB_PATH"
+        run: ./scripts/nest.sh bootstrap nestfile.yaml
 
       - name: Update nestfile
-        run: nest update-nestfile nestfile.yaml
+        run: ./scripts/nest.sh update-nestfile nestfile.yaml
 
       - name: Check for changes
         id: changes
