@@ -6,6 +6,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/bin/sh \"$(git rev-parse --show-toplevel)/.codex/hooks/post-edit-lint.sh\"",
+            "statusMessage": "Linting"
+          },
+          {
+            "type": "command",
             "command": "/bin/sh \"$(git rev-parse --show-toplevel)/.codex/hooks/docsync-check.sh\"",
             "statusMessage": "Checking doc sync"
           }

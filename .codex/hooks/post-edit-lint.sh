@@ -56,7 +56,7 @@ if [ -n "$ASTLINT" ] && [ -f "$SRCROOT/.swift-ast-lint.yml" ]; then
   fi
 fi
 
-# Report to Claude via JSON stdout (exit 0 is required — JSON is ignored on any other exit code)
+# Report via JSON stdout (exit 0 is required — JSON is ignored on any other exit code)
 if [ -n "$ALL_REASONS" ]; then
   REASON=$(printf '%b' "$ALL_REASONS" | jq -Rs .)
   printf '{"decision":"block","reason":%s}\n' "$REASON"
