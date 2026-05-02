@@ -7,7 +7,7 @@ import Yams
 @Suite
 struct DocSyncConfigTests {
     @Test
-    func `round trip encoding decoding preserves all fields`() throws {
+    func roundTripEncodingDecodingPreservesAllFields() throws {
         let original = DocSyncConfig(rules: [
             DocSyncConfig.Rule(
                 name: "api-doc",
@@ -29,7 +29,7 @@ struct DocSyncConfigTests {
     }
 
     @Test
-    func `rule with no checksum decodes as nil`() throws {
+    func ruleWithNoChecksumDecodesAsNil() throws {
         let yaml = """
         rules:
           - name: api-doc
@@ -43,7 +43,7 @@ struct DocSyncConfigTests {
     }
 
     @Test
-    func `rule with checksum decodes correctly`() throws {
+    func ruleWithChecksumDecodesCorrectly() throws {
         let yaml = """
         rules:
           - name: my-rule
@@ -57,14 +57,14 @@ struct DocSyncConfigTests {
     }
 
     @Test
-    func `empty rules list decodes`() throws {
+    func emptyRulesListDecodes() throws {
         let yaml = "rules: []\n"
         let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
         #expect(config.rules.isEmpty)
     }
 
     @Test
-    func `rule without message field decodes as nil`() throws {
+    func ruleWithoutMessageFieldDecodesAsNil() throws {
         let yaml = """
         rules:
           - name: api-doc
@@ -77,7 +77,7 @@ struct DocSyncConfigTests {
     }
 
     @Test
-    func `rule with message field decodes correctly`() throws {
+    func ruleWithMessageFieldDecodesCorrectly() throws {
         let yaml = """
         rules:
           - name: api-doc
@@ -91,7 +91,7 @@ struct DocSyncConfigTests {
     }
 
     @Test
-    func `multiple sources preserved in order`() throws {
+    func multipleSourcesPreservedInOrder() throws {
         let sources = ["c.ts", "a.ts", "b.ts"]
         let rule = DocSyncConfig.Rule(name: "rrr", sources: sources, doc: "d.md", checksum: nil)
         let config = DocSyncConfig(rules: [rule])

@@ -24,7 +24,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `writes computed checksum to config file`() async throws {
+    func writesComputedChecksumToConfigFile() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -47,7 +47,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `checksum after update matches direct calculation`() async throws {
+    func checksumAfterUpdateMatchesDirectCalculation() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -69,7 +69,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `updates existing stale checksum`() async throws {
+    func updatesExistingStaleChecksum() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -92,7 +92,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `updates multiple rules independently`() async throws {
+    func updatesMultipleRulesIndependently() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -119,7 +119,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `after update, CheckRunner returns allInSync`() async throws {
+    func afterUpdateCheckRunnerReturnsAllInSync() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -138,7 +138,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `throws when config file missing`() async throws {
+    func throwsWhenConfigFileMissing() async throws {
         let url = URL(filePath: "/tmp/nonexistent-\(UUID().uuidString).yml")
         await #expect(throws: (any Error).self) {
             try await UpdateRunner(configURL: url).run()
@@ -146,7 +146,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `throws when source file missing`() async throws {
+    func throwsWhenSourceFileMissing() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -163,7 +163,7 @@ struct UpdateRunnerTests {
     }
 
     @Test
-    func `preserves rule metadata (name, sources, doc) after update`() async throws {
+    func preservesRuleMetadataAfterUpdate() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 

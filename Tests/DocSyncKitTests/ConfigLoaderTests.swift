@@ -23,7 +23,7 @@ struct ConfigLoaderTests {
     // MARK: - load
 
     @Test
-    func `loads valid YAML with checksum`() throws {
+    func loadsValidYAMLWithChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -45,7 +45,7 @@ struct ConfigLoaderTests {
     }
 
     @Test
-    func `loads YAML without checksum field`() throws {
+    func loadsYAMLWithoutChecksumField() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -61,7 +61,7 @@ struct ConfigLoaderTests {
     }
 
     @Test
-    func `loads YAML with multiple rules`() throws {
+    func loadsYAMLWithMultipleRules() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
@@ -81,7 +81,7 @@ struct ConfigLoaderTests {
     }
 
     @Test
-    func `throws fileNotFound for missing file`() throws {
+    func throwsFileNotFoundForMissingFile() throws {
         let url = URL(filePath: "/tmp/nonexistent-docsync-\(UUID().uuidString).yml")
         #expect(throws: ConfigError.self) {
             try loader.load(from: url)
@@ -89,7 +89,7 @@ struct ConfigLoaderTests {
     }
 
     @Test
-    func `throws on malformed YAML`() throws {
+    func throwsOnMalformedYAML() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let url = try write("rules: [[[invalid", name: "docsync.yml", in: dir)
@@ -101,7 +101,7 @@ struct ConfigLoaderTests {
     // MARK: - save
 
     @Test
-    func `save round-trips correctly`() throws {
+    func saveRoundTripsCorrectly() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let url = dir.appending(path: "docsync.yml")
@@ -116,7 +116,7 @@ struct ConfigLoaderTests {
     }
 
     @Test
-    func `save updates existing file with new checksum`() throws {
+    func saveUpdatesExistingFileWithNewChecksum() throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
         let yaml = """
