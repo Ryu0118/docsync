@@ -40,6 +40,6 @@ docsync:
 	$(DOCSYNC) check
 
 docsync-update-checksum:
-	$(DOCSYNC) update
+	$(DOCSYNC) update-checksum
 
 check: format lint ast-lint test docsync
