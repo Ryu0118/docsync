@@ -26,4 +26,4 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
 
       - name: Check doc sync
-        run: swift run docsync check
+        run: xcrun swift run docsync check
