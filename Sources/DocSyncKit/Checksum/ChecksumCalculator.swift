@@ -2,7 +2,9 @@ import Crypto
 import FileManagerProtocol
 import Foundation
 
+/// Computes a deterministic SHA-256 checksum over a set of source files.
 package enum ChecksumCalculator {
+    /// Returns a lowercase hex SHA-256 digest of the concatenated contents of `sources`, sorted alphabetically.
     package static func calculate(
         sources: [String],
         relativeTo base: URL,
@@ -23,9 +25,11 @@ package enum ChecksumCalculator {
     }
 }
 
+/// Errors thrown by ``ChecksumCalculator``.
 package enum ChecksumError: LocalizedError, Equatable {
     case sourceFileNotFound(String)
 
+    /// Human-readable description of the error.
     package var errorDescription: String? {
         switch self {
         case let .sourceFileNotFound(path):

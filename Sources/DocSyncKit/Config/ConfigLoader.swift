@@ -2,13 +2,16 @@ import FileManagerProtocol
 import Foundation
 import Yams
 
+/// Loads and saves ``DocSyncConfig`` from/to a YAML file.
 package struct ConfigLoader {
     private let fileManager: any FileManagerProtocol
 
+    /// Creates a loader backed by the given file manager.
     package init(fileManager: some FileManagerProtocol = FileManager.default) {
         self.fileManager = fileManager
     }
 
+    /// Reads and decodes ``DocSyncConfig`` from the YAML file at `url`.
     package func load(from url: URL) throws -> DocSyncConfig {
         let data = fileManager.contents(atPath: url.path(percentEncoded: false))
         guard let data else {
@@ -20,6 +23,7 @@ package struct ConfigLoader {
         return try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
     }
 
+    /// Encodes `config` as YAML and writes it to `url`.
     package func save(_ config: DocSyncConfig, to url: URL) throws {
         let yaml = try YAMLEncoder().encode(config)
         guard let data = yaml.data(using: .utf8) else {
@@ -29,11 +33,13 @@ package struct ConfigLoader {
     }
 }
 
+/// Errors thrown by ``ConfigLoader``.
 package enum ConfigError: LocalizedError, Equatable {
     case fileNotFound(String)
     case invalidEncoding(String)
     case encodingFailed
 
+    /// Human-readable description of the error.
     package var errorDescription: String? {
         switch self {
         case let .fileNotFound(path):
