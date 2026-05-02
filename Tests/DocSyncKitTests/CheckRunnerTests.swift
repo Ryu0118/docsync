@@ -175,7 +175,7 @@ struct CheckRunnerTests {
     }
 
     @Test
-    func allRulesInSyncProducesAllInSync=true() async throws {
+    func allRulesInSyncProducesAllInSyncTrue() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
@@ -202,7 +202,7 @@ struct CheckRunnerTests {
     }
 
     @Test
-    func emptyRulesListReturnsAllInSync=true() async throws {
+    func emptyRulesListReturnsAllInSyncTrue() async throws {
         let dir = try makeTempDir()
         defer { try? fm.removeItem(at: dir) }
 
