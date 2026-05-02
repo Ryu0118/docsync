@@ -24,19 +24,23 @@ package struct CheckRunner {
     package func run() async throws -> CheckResult {
         switch mode {
         case .claudeHook:
-            return await runHook(output: \.claudeHookOutput)
+            await runHook(output: \.claudeHookOutput)
         case .codexHook:
-            return await runHook(output: \.codexHookOutput)
-        case .evaluateOnly, .commandLine:
-            let result = try evaluateConfig()
-            if mode == .commandLine {
-                log(result)
-                if !result.allInSync {
-                    throw CheckRunnerError.outOfSync
-                }
-            }
-            return result
+            await runHook(output: \.codexHookOutput)
+        case .evaluateOnly:
+            try evaluateConfig()
+        case .commandLine:
+            try runCommandLine()
         }
+    }
+
+    private func runCommandLine() throws -> CheckResult {
+        let result = try evaluateConfig()
+        log(result)
+        if !result.allInSync {
+            throw CheckRunnerError.outOfSync
+        }
+        return result
     }
 
     private func runHook(output keyPath: KeyPath<CheckResult, ClaudeHookOutput?>) async -> CheckResult {

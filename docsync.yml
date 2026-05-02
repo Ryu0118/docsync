@@ -8,7 +8,7 @@ rules:
   message: Sources that affect the CLI surface or hook payload changed. Review the
     diff and update README.md (Features, Command reference, hook examples) only if
     the user-facing behavior changed.
-  checksum: 4672451bdd012ffc3ec47d982d8b0c721315558faef0e3fa2c50fc86f2771b0a
+  checksum: ce1a9b7d8c58d22c7073eb13bbc842da787a37b37f0470984a99525556e003c5
 - name: agents-claude
   sources:
   - Package.swift
@@ -19,4 +19,4 @@ rules:
   message: Sources that affect the architecture or config format changed. Review the
     diff and update CLAUDE.md (project structure, architecture rules, config format)
     only if something the docs describe has changed.
-  checksum: 49ba92812bc9005693c76cf2bac79d064f5631c45f71fdad76c3bfbff8b476e5
+  checksum: f1a02407f5aea32b11947056487610767335db21f40bea9075f0ba262874ff74
