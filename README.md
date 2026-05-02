@@ -50,7 +50,10 @@ cp .build/release/docsync /usr/local/bin/
 Install the **docsync** skill so your AI agent understands the config syntax, error messages, and best practices — and knows exactly what action to take when `docsync check` fails.
 
 ```bash
-# ~/.agents/skills/ (Agent Skills standard)
+# via skills CLI (https://github.com/vercel-labs/skills)
+npx skills add Ryu0118/docsync --skill docsync -g
+
+# or download directly to ~/.agents/skills/ (Agent Skills standard)
 mkdir -p ~/.agents/skills/docsync
 curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/.agents/skills/docsync/SKILL.md \
   -o ~/.agents/skills/docsync/SKILL.md
