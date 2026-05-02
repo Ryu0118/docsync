@@ -90,6 +90,30 @@ docsync update-checksum
 
 ---
 
+## Glob patterns
+
+`sources` accepts glob patterns in addition to literal paths:
+
+| Pattern | Matches |
+|---------|---------|
+| `*` | Any sequence of characters within one directory level |
+| `**` | Zero or more directory levels (recursive) |
+| `?` | Any single character (not `/`) |
+
+```yaml
+rules:
+  - name: rules-doc
+    sources:
+      - Sources/Rules/*Rule.swift   # all *Rule.swift in one directory
+      - Sources/**/*.swift          # all .swift files recursively
+      - Package.swift               # literal path
+    doc: README.md
+```
+
+A glob that matches zero files is an error. Adding a new file that matches an existing glob is detected automatically — no need to update `docsync.yml`.
+
+---
+
 ## Custom error messages
 
 ```yaml
