@@ -12,6 +12,7 @@ hooks:
 	./scripts/setup-hooks.sh
 
 setup: nest hooks
+	mise install
 
 format:
 	@test -f "$(SWIFTFORMAT)" || (echo "Run: make setup" && exit 1)
