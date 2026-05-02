@@ -1,7 +1,7 @@
 #!/bin/sh
 # PostToolUse hook: run docsync check after every edit.
 #
-# Binary resolution: .build/release/docsync → .build/debug/docsync → PATH docsync → swift run docsync (slow).
+# Binary resolution: .build/release/docsync → .build/debug/docsync → PATH docsync → build release binary.
 
 SRCROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 CONFIG="$SRCROOT/docsync.yml"
@@ -15,8 +15,9 @@ elif [ -x "$SRCROOT/.build/debug/docsync" ]; then
 elif command -v docsync >/dev/null 2>&1; then
   DOCSYNC="docsync"
 else
-  DOCSYNC="swift run --package-path '$SRCROOT' docsync"
-  echo "[docsync] No pre-built binary found — falling back to 'swift run' (slow). Run 'swift build -c release' to speed this up." >&2
+  echo "[docsync] No pre-built binary found — building now..." >&2
+  swift build -c release --package-path "$SRCROOT" >&2 || exit 0
+  DOCSYNC="$SRCROOT/.build/release/docsync"
 fi
 
 # --- Run check ---
