@@ -25,8 +25,8 @@ package struct CheckResult: Equatable {
         let lines = statuses.compactMap { status -> String? in
             switch status {
             case let .outOfSync(name, doc, message):
-                let body = message ?? "sources changed but \(doc) not updated"
-                return "out of sync: \(name) — \(body)\nAfter updating the docs, run `docsync update-checksum` to refresh the checksum."
+                let body = message ?? "sources changed since last checksum: \(doc)"
+                return "out of sync: \(name) — \(body)\nUpdate the doc if needed, then run `docsync update-checksum` to resync the checksum."
             case let .missingChecksum(name):
                 return "no checksum stored: \(name) — run `docsync update-checksum` first to initialize the checksum."
             case .inSync:

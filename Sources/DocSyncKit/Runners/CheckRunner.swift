@@ -75,9 +75,9 @@ package struct CheckRunner {
         case let .inSync(name):
             logger.info("[docsync] ✅ in sync: \(name)", metadata: .plainOutput)
         case let .outOfSync(name, doc, message):
-            let body = message ?? "sources changed but \(doc) not updated"
+            let body = message ?? "sources changed since last checksum: \(doc)"
             logger.error(
-                "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  After updating the docs, run `docsync update-checksum` to refresh the checksum.",
+                "[docsync] ❌ out of sync: \(name)\n  - \(body)\n  Update the doc if needed, then run `docsync update-checksum` to resync the checksum.",
                 metadata: .plainOutput,
             )
         case let .missingChecksum(name):

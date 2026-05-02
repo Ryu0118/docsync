@@ -76,11 +76,13 @@ docsync check
 
 ```
 [docsync] ❌ out of sync: api-doc
-  - sources changed but docs/api.md not updated
-  After updating the docs, run `docsync update-checksum` to refresh the checksum.
+  - sources changed since last checksum: docs/api.md
+  Update the doc if needed, then run `docsync update-checksum` to resync the checksum.
 ```
 
-### 4. Update checksums after editing docs
+### 4. Resync the checksum
+
+Whether you updated the doc or intentionally left it unchanged, stamp the new checksum:
 
 ```bash
 docsync update-checksum
