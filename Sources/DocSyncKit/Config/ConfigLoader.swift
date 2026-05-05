@@ -25,7 +25,11 @@ package struct ConfigLoader {
 
     /// Encodes `config` as YAML and writes it to `url`.
     package func save(_ config: DocSyncConfig, to url: URL) throws {
-        let yaml = try YAMLEncoder().encode(config)
+        let encoder = YAMLEncoder()
+        // allow_unicode=true: non-ASCII characters (e.g. Japanese) are written as-is
+        // instead of \uXXXX escape sequences
+        encoder.options.allowUnicode = true
+        let yaml = try encoder.encode(config)
         guard let data = yaml.data(using: .utf8) else {
             throw ConfigError.encodingFailed
         }
