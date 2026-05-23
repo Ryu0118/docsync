@@ -14,20 +14,43 @@ package enum ChecksumCalculator {
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> String {
-        try calculate(sources: sources, relativeTo: base, fileManager: fileManager, cachedAllFiles: nil)
+        try calculate(
+            sources: sources,
+            excludes: [],
+            relativeTo: base,
+            fileManager: fileManager,
+            cachedAllFiles: nil,
+        )
     }
 
-    /// Same as ``calculate(sources:relativeTo:fileManager:)`` but reuses an already-collected
-    /// list of all files under `base`. Use this when computing checksums for many rules sharing a
-    /// base directory to avoid scanning the whole tree per rule.
+    /// Backwards-compatible overload: takes `cachedAllFiles` but no `excludes`.
     package static func calculate(
         sources: [String],
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
         cachedAllFiles: [String]?,
     ) throws -> String {
+        try calculate(
+            sources: sources,
+            excludes: [],
+            relativeTo: base,
+            fileManager: fileManager,
+            cachedAllFiles: cachedAllFiles,
+        )
+    }
+
+    /// Accepts top-level `excludes` and an optional `cachedAllFiles` to amortise directory
+    /// enumeration across rules. Literal entries in `sources` bypass `excludes`.
+    package static func calculate(
+        sources: [String],
+        excludes: [String],
+        relativeTo base: URL,
+        fileManager: some FileManagerProtocol,
+        cachedAllFiles: [String]?,
+    ) throws -> String {
         let resolved = try GlobExpander.expand(
             patterns: sources,
+            excludes: excludes,
             relativeTo: base,
             fileManager: fileManager,
             cachedAllFiles: cachedAllFiles,
