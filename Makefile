@@ -3,7 +3,7 @@ SWIFTLINT := .nest/bin/swiftlint
 SWIFT_LINTER := .nest/bin/my-swift-linter
 DOCSYNC := $(shell test -x .build/release/docsync && echo .build/release/docsync || echo swift run docsync)
 
-.PHONY: nest hooks setup format lint ast-lint format-lint test build release check docsync docsync-update-checksum benchmark
+.PHONY: nest hooks setup format lint ast-lint format-lint test build release check docsync docsync-update-checksum
 
 nest:
 	./scripts/nest.sh bootstrap nestfile.yaml
@@ -44,6 +44,3 @@ docsync-update-checksum:
 	$(DOCSYNC) update-checksum
 
 check: format lint ast-lint test docsync
-
-benchmark:
-	BENCHMARK_DISABLE_JEMALLOC=1 swift package --disable-sandbox --allow-writing-to-package-directory benchmark --target DocSyncBenchmarks

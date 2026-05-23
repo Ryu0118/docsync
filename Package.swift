@@ -15,7 +15,6 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-crypto", from: "4.5.0"),
         .package(url: "https://github.com/mtj0928/swift-async-operations", from: "0.5.0"),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.33.0"),
     ],
     targets: [
         .executableTarget(
@@ -50,17 +49,6 @@ let package = Package(
             ],
             exclude: [
                 "Fixtures",
-            ],
-        ),
-        .executableTarget(
-            name: "DocSyncBenchmarks",
-            dependencies: [
-                "DocSyncKit",
-                .product(name: "Benchmark", package: "package-benchmark"),
-            ],
-            path: "Benchmarks/DocSyncBenchmarks",
-            plugins: [
-                .plugin(name: "BenchmarkPlugin", package: "package-benchmark"),
             ],
         ),
     ],

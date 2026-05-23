@@ -19,7 +19,7 @@ rules:
   message: Sources that affect the architecture or config format changed. Review the
     diff and update CLAUDE.md (project structure, architecture rules, config format)
     only if something the docs describe has changed.
-  checksum: b0c615c46a3530433031a01772157f8e722e7d56c00396b3525593d759b7ae3a
+  checksum: ffa33a48bd4436ac220b279be5b89d0ce9af2f5143bbc1ad5819ca734953f9ca
 - name: agents-skill
   sources:
   - Sources/DocSyncCLI/Commands/CheckCommand.swift
