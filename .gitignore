@@ -10,3 +10,5 @@ DerivedData/
 .serena
 .claude/settings.local.json
 *.skill
+/benchmarks/*.txt
+/Benchmarks/.benchmarkBaselines
