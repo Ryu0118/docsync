@@ -129,6 +129,51 @@ struct GlobExpanderTests {
         #expect(result == ["Sources/Foo.swift"])
     }
 
+    struct CacheCase: CustomTestStringConvertible {
+        let label: String
+        let patterns: [String]
+        let useCache: Bool
+        let expectedResult: [String]
+        var testDescription: String {
+            label
+        }
+    }
+
+    @Test(arguments: [
+        CacheCase(
+            label: "cached_allFiles_produces_same_result",
+            patterns: ["Sources/*.swift"],
+            useCache: true,
+            expectedResult: ["Sources/A.swift", "Sources/B.swift", "Sources/C.swift"],
+        ),
+        CacheCase(
+            label: "uncached_handles_duplicate_globs",
+            patterns: ["Sources/*.swift", "Sources/A.swift", "Sources/*.swift"],
+            useCache: false,
+            expectedResult: ["Sources/A.swift", "Sources/B.swift", "Sources/C.swift"],
+        ),
+    ])
+    func expandHonoursCachedAllFiles(_ testCase: CacheCase) throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: "Sources/A.swift", in: dir)
+        try write("x", at: "Sources/B.swift", in: dir)
+        try write("x", at: "Sources/C.swift", in: dir)
+
+        let cached = testCase.useCache
+            ? try GlobExpander.collectAllFiles(under: dir, fileManager: fm)
+            : nil
+
+        let result = try GlobExpander.expand(
+            patterns: testCase.patterns,
+            relativeTo: dir,
+            fileManager: fm,
+            cachedAllFiles: cached,
+        )
+
+        #expect(result == testCase.expectedResult)
+    }
+
     @Test
     func mixedLiteralAndGlobPatterns() throws {
         let dir = try makeTempDir()

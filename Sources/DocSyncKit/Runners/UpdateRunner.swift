@@ -26,16 +26,20 @@ package struct UpdateRunner {
         var config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
 
-        let checksums = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) {
+        let allFiles = try GlobExpander.collectAllFiles(under: base, fileManager: fileManager)
+        let checksums = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) { rule in
             try ChecksumCalculator.calculate(
-                sources: $0.sources,
+                sources: rule.sources,
                 relativeTo: base,
                 fileManager: fileManager,
+                cachedAllFiles: allFiles,
             )
         }
 
-        for (index, checksum) in checksums.enumerated() {
-            config.rules[index].checksum = checksum
+        config.rules = zip(config.rules, checksums).map { rule, checksum in
+            var updated = rule
+            updated.checksum = checksum
+            return updated
         }
 
         try configLoader.save(config, to: configURL)

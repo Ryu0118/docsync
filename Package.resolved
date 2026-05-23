@@ -1,5 +1,5 @@
 {
-  "originHash" : "6e20fa25d6c65b79cefabed6917616eeb1e8d9545b33d963985cdaabeb63eed7",
+  "originHash" : "4c553dc4fec2afc613ca65c1fc950340349ab130c9e09cc4070e5a51ab1f186d",
   "pins" : [
     {
       "identity" : "filemanagerprotocol",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser",
       "state" : {
-        "revision" : "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
-        "version" : "1.7.1"
+        "revision" : "011f0c765fb46d9cac61bca19be0527e99c98c8b",
+        "version" : "1.5.1"
       }
     },
     {

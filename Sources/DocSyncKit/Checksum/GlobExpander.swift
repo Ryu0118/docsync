@@ -17,11 +17,40 @@ package enum GlobExpander {
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> [String] {
-        var result: [String] = []
-        for pattern in patterns {
-            try appendExpanded(pattern: pattern, base: base, fileManager: fileManager, into: &result)
+        try expand(patterns: patterns, relativeTo: base, fileManager: fileManager, cachedAllFiles: nil)
+    }
+
+    /// Same as ``expand(patterns:relativeTo:fileManager:)`` but reuses an already-collected
+    /// list of all files under `base`. Use this when expanding multiple rules that share a base
+    /// directory to avoid scanning the entire tree per call.
+    package static func expand(
+        patterns: [String],
+        relativeTo base: URL,
+        fileManager: some FileManagerProtocol,
+        cachedAllFiles: [String]?,
+    ) throws -> [String] {
+        let lazyAllFiles = LazyThrowing<[String]> {
+            try cachedAllFiles ?? collectAllFiles(under: base, fileManager: fileManager)
         }
-        return Array(Set(result)).sorted()
+        let expanded = try patterns.flatMap { pattern -> [String] in
+            guard isGlob(pattern) else { return [pattern] }
+            let matched = try lazyAllFiles.value().filter { matchesGlob(pattern: pattern, path: $0) }
+            guard !matched.isEmpty else { throw ChecksumError.noGlobMatches(pattern) }
+            return matched
+        }
+        return Array(Set(expanded)).sorted()
+    }
+
+    /// Enumerates every file (not directory) under `base`. Exposed for callers that want to
+    /// reuse the result across multiple ``expand(patterns:relativeTo:fileManager:cachedAllFiles:)`` calls.
+    package static func collectAllFiles(
+        under base: URL,
+        fileManager: some FileManagerProtocol,
+    ) throws -> [String] {
+        guard let subpaths = fileManager.subpaths(atPath: base.path(percentEncoded: false)) else {
+            return []
+        }
+        return subpaths.filter { isFile(path: $0, base: base, fileManager: fileManager) }
     }
 
     /// Returns true if `path` matches the glob `pattern`.
@@ -31,42 +60,8 @@ package enum GlobExpander {
         matchGlob(pattern: Array(pattern), patternIndex: 0, path: Array(path), pathIndex: 0)
     }
 
-    private static func appendExpanded(
-        pattern: String,
-        base: URL,
-        fileManager: some FileManagerProtocol,
-        into result: inout [String],
-    ) throws {
-        if isGlob(pattern) {
-            let matched = try expandGlob(pattern, base: base, fileManager: fileManager)
-            guard !matched.isEmpty else { throw ChecksumError.noGlobMatches(pattern) }
-            result.append(contentsOf: matched)
-        } else {
-            result.append(pattern)
-        }
-    }
-
     private static func isGlob(_ pattern: String) -> Bool {
         pattern.contains("*") || pattern.contains("?")
-    }
-
-    private static func expandGlob(
-        _ pattern: String,
-        base: URL,
-        fileManager: some FileManagerProtocol,
-    ) throws -> [String] {
-        let allFiles = try collectAllFiles(under: base, fileManager: fileManager)
-        return allFiles.filter { matchesGlob(pattern: pattern, path: $0) }.sorted()
-    }
-
-    private static func collectAllFiles(
-        under base: URL,
-        fileManager: some FileManagerProtocol,
-    ) throws -> [String] {
-        guard let subpaths = fileManager.subpaths(atPath: base.path(percentEncoded: false)) else {
-            return []
-        }
-        return subpaths.filter { isFile(path: $0, base: base, fileManager: fileManager) }
     }
 
     private static func isFile(path: String, base: URL, fileManager: some FileManagerProtocol) -> Bool {

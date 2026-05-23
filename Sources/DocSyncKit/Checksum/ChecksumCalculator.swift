@@ -14,20 +14,34 @@ package enum ChecksumCalculator {
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> String {
-        let resolved = try GlobExpander.expand(patterns: sources, relativeTo: base, fileManager: fileManager)
-        var hasher = SHA256()
-        for path in resolved {
+        try calculate(sources: sources, relativeTo: base, fileManager: fileManager, cachedAllFiles: nil)
+    }
+
+    /// Same as ``calculate(sources:relativeTo:fileManager:)`` but reuses an already-collected
+    /// list of all files under `base`. Use this when computing checksums for many rules sharing a
+    /// base directory to avoid scanning the whole tree per rule.
+    package static func calculate(
+        sources: [String],
+        relativeTo base: URL,
+        fileManager: some FileManagerProtocol,
+        cachedAllFiles: [String]?,
+    ) throws -> String {
+        let resolved = try GlobExpander.expand(
+            patterns: sources,
+            relativeTo: base,
+            fileManager: fileManager,
+            cachedAllFiles: cachedAllFiles,
+        )
+        let hasher = try resolved.reduce(into: SHA256()) { hasher, path in
             let url = base.appending(path: path)
-            let data = fileManager.contents(atPath: url.path(percentEncoded: false))
-            guard let data else {
+            guard let data = fileManager.contents(atPath: url.path(percentEncoded: false)) else {
                 throw ChecksumError.sourceFileNotFound(url.path(percentEncoded: false))
             }
             hasher.update(data: Data(path.utf8))
             hasher.update(data: Data([0x00]))
             hasher.update(data: data)
         }
-        let digest = hasher.finalize()
-        return digest.map { String(format: "%02x", $0) }.joined()
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 }
 
