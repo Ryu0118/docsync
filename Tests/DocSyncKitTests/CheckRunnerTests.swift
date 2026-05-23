@@ -240,4 +240,38 @@ struct CheckRunnerTests {
             try await CheckRunner(configURL: configURL).run()
         }
     }
+
+    @Test
+    func topLevelExcludesAreAppliedToGlobExpansion() async throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+
+        try fm.createDirectory(at: dir.appending(path: "Sources"), withIntermediateDirectories: true)
+        try fm.createDirectory(at: dir.appending(path: ".build"), withIntermediateDirectories: true)
+        try write("a", name: "Sources/A.ts", in: dir)
+        try write("noise", name: ".build/cached.ts", in: dir)
+
+        // checksum must be computed with the same exclude set the runner sees
+        let goodChecksum = try ChecksumCalculator.calculate(
+            sources: ["**/*.ts"],
+            excludes: [".build/**"],
+            relativeTo: dir,
+            fileManager: fm,
+            cachedAllFiles: nil,
+        )
+        let yaml = """
+        excludes:
+          - .build/**
+        rules:
+          - name: r
+            sources:
+              - "**/*.ts"
+            doc: d.md
+            checksum: \(goodChecksum)
+        """
+        let configURL = try writeConfig(yaml, in: dir)
+
+        let result = try await CheckRunner(configURL: configURL).run()
+        #expect(result.allInSync)
+    }
 }

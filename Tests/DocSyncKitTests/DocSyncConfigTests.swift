@@ -99,4 +99,46 @@ struct DocSyncConfigTests {
         let decoded = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
         #expect(decoded.rules[0].sources == sources)
     }
+
+    // MARK: - excludes
+
+    @Test
+    func configWithoutExcludesDecodesAsEmpty() throws {
+        let yaml = """
+        rules:
+          - name: r
+            sources:
+              - a.swift
+            doc: d.md
+        """
+        let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
+        #expect(config.excludes.isEmpty)
+    }
+
+    @Test
+    func configWithTopLevelExcludesDecodes() throws {
+        let yaml = """
+        excludes:
+          - .build/**
+          - node_modules/**
+        rules:
+          - name: r
+            sources:
+              - a.swift
+            doc: d.md
+        """
+        let config = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
+        #expect(config.excludes == [".build/**", "node_modules/**"])
+    }
+
+    @Test
+    func roundTripPreservesExcludes() throws {
+        let original = DocSyncConfig(
+            rules: [DocSyncConfig.Rule(name: "r", sources: ["a.swift"], doc: "d.md")],
+            excludes: [".build/**", "node_modules/**"],
+        )
+        let yaml = try YAMLEncoder().encode(original)
+        let decoded = try YAMLDecoder().decode(DocSyncConfig.self, from: yaml)
+        #expect(decoded == original)
+    }
 }
