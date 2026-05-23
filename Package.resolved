@@ -1,5 +1,5 @@
 {
-  "originHash" : "7599fd00fd003a943575b63d4721c5180615e89bd84367da889da4af56a50acf",
+  "originHash" : "6e20fa25d6c65b79cefabed6917616eeb1e8d9545b33d963985cdaabeb63eed7",
   "pins" : [
     {
       "identity" : "filemanagerprotocol",
@@ -26,6 +26,15 @@
       "state" : {
         "revision" : "eb50cbd14606a9161cbc5d452f18797c90ef0bab",
         "version" : "1.7.0"
+      }
+    },
+    {
+      "identity" : "swift-async-operations",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mtj0928/swift-async-operations",
+      "state" : {
+        "revision" : "5ee33ce3b4e59e6aa9b1dfe95f1623bd142efa7b",
+        "version" : "0.5.0"
       }
     },
     {
