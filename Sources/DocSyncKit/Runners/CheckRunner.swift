@@ -29,14 +29,14 @@ package struct CheckRunner {
         case .codexHook:
             await runHook(output: \.codexHookOutput)
         case .evaluateOnly:
-            try evaluateConfig()
+            try await evaluateConfig()
         case .commandLine:
-            try runCommandLine()
+            try await runCommandLine()
         }
     }
 
-    private func runCommandLine() throws -> CheckResult {
-        let result = try evaluateConfig()
+    private func runCommandLine() async throws -> CheckResult {
+        let result = try await evaluateConfig()
         log(result)
         if !result.allInSync {
             throw CheckRunnerError.outOfSync
@@ -46,7 +46,7 @@ package struct CheckRunner {
 
     private func runHook(output keyPath: KeyPath<CheckResult, ClaudeHookOutput?>) async -> CheckResult {
         do {
-            let result = try evaluateConfig()
+            let result = try await evaluateConfig()
             if let output = result[keyPath: keyPath] {
                 logger.notice("\(output.jsonString)", metadata: .stdoutOutput)
             }
@@ -56,10 +56,12 @@ package struct CheckRunner {
         }
     }
 
-    private func evaluateConfig() throws -> CheckResult {
+    private func evaluateConfig() async throws -> CheckResult {
         let config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
-        let statuses = try config.rules.map { try evaluate(rule: $0, base: base) }
+        let statuses = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) {
+            try evaluate(rule: $0, base: base)
+        }
         return CheckResult(statuses: statuses)
     }
 
