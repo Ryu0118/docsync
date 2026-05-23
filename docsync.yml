@@ -19,7 +19,7 @@ rules:
   message: Sources that affect the architecture or config format changed. Review the
     diff and update CLAUDE.md (project structure, architecture rules, config format)
     only if something the docs describe has changed.
-  checksum: 0c639efbc65e52aace58e4e3ff0c15316f31789f0272385c7249d15f8e846826
+  checksum: b0c615c46a3530433031a01772157f8e722e7d56c00396b3525593d759b7ae3a
 - name: agents-skill
   sources:
   - Sources/DocSyncCLI/Commands/CheckCommand.swift
@@ -35,4 +35,4 @@ rules:
   message: CLI surface, error messages, config schema, glob behaviour, or checksum
     algorithm changed — review SKILL.md and update the affected sections (syntax,
     error states, best practices) only if the agent-facing description is now inaccurate.
-  checksum: 025299481dbed5427755dbcbac53c5f97b7bfb15736f42b5078bf006b8539255
+  checksum: 92cce3cc1d77c0a1de0838042316c2e71ee216032f8bd254ee12f1928a19ed3c

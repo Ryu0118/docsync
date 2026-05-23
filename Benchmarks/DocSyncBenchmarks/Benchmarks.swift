@@ -46,4 +46,23 @@ let benchmarks: @Sendable () -> Void = {
             try await runner.run()
         }
     }
+
+    Benchmark(
+        "check_realistic",
+        configuration: .init(metrics: [.wallClock], warmupIterations: 1, maxDuration: .seconds(20)),
+    ) { benchmark in
+        let fixture = try FixtureBuilder.build(
+            rules: 12,
+            sourcesPerRule: 5,
+            fileSizeKB: 4,
+            extraFiles: 50000,
+            useGlobPatterns: true,
+        )
+        defer { FixtureBuilder.cleanup(fixture) }
+        benchmark.startMeasurement()
+        for _ in benchmark.scaledIterations {
+            let runner = CheckRunner(configURL: fixture.configURL)
+            try await blackHole(runner.run())
+        }
+    }
 }

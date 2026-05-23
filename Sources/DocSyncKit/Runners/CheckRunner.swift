@@ -59,8 +59,9 @@ package struct CheckRunner {
     private func evaluateConfig() async throws -> CheckResult {
         let config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
-        let statuses = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) {
-            try evaluate(rule: $0, base: base)
+        let allFiles = try GlobExpander.collectAllFiles(under: base, fileManager: fileManager)
+        let statuses = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) { rule in
+            try evaluate(rule: rule, base: base, allFiles: allFiles)
         }
         return CheckResult(statuses: statuses)
     }
@@ -93,7 +94,7 @@ package struct CheckRunner {
         }
     }
 
-    private func evaluate(rule: DocSyncConfig.Rule, base: URL) throws -> RuleStatus {
+    private func evaluate(rule: DocSyncConfig.Rule, base: URL, allFiles: [String]) throws -> RuleStatus {
         guard let stored = rule.checksum, !stored.isEmpty else {
             return .missingChecksum(ruleName: rule.name)
         }
@@ -101,6 +102,7 @@ package struct CheckRunner {
             sources: rule.sources,
             relativeTo: base,
             fileManager: fileManager,
+            cachedAllFiles: allFiles,
         )
         return computed == stored
             ? .inSync(ruleName: rule.name)
