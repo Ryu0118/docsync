@@ -4,10 +4,34 @@ import Foundation
 package struct DocSyncConfig: Codable, Equatable {
     /// The list of sync rules defined in the config.
     package var rules: [Rule]
+    /// Glob patterns to remove from the set of candidate files before any rule's
+    /// `sources` glob is expanded. Literal (non-glob) source paths bypass excludes
+    /// so that explicitly listed files are always honoured.
+    package var excludes: [String]
 
-    /// Creates a config with the given rules.
-    package init(rules: [Rule]) {
+    /// Creates a config with the given rules and optional excludes.
+    package init(rules: [Rule], excludes: [String] = []) {
         self.rules = rules
+        self.excludes = excludes
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case rules
+        case excludes
+    }
+
+    package init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        rules = try container.decode([Rule].self, forKey: .rules)
+        excludes = try container.decodeIfPresent([String].self, forKey: .excludes) ?? []
+    }
+
+    package func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(rules, forKey: .rules)
+        if !excludes.isEmpty {
+            try container.encode(excludes, forKey: .excludes)
+        }
     }
 }
 

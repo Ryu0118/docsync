@@ -17,20 +17,32 @@ package enum GlobExpander {
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> [String] {
-        try expand(patterns: patterns, relativeTo: base, fileManager: fileManager, cachedAllFiles: nil)
+        try expand(
+            patterns: patterns,
+            excludes: [],
+            relativeTo: base,
+            fileManager: fileManager,
+            cachedAllFiles: nil,
+        )
     }
 
-    /// Same as ``expand(patterns:relativeTo:fileManager:)`` but reuses an already-collected
-    /// list of all files under `base`. Use this when expanding multiple rules that share a base
-    /// directory to avoid scanning the entire tree per call.
+    /// Expands `patterns` while removing any glob-matched paths covered by `excludes`.
+    ///
+    /// Literal (non-glob) entries in `patterns` bypass `excludes` so explicit user intent
+    /// always wins. `cachedAllFiles` lets callers reuse a single directory enumeration
+    /// across multiple `expand` invocations sharing the same `base`.
     package static func expand(
         patterns: [String],
+        excludes: [String],
         relativeTo base: URL,
         fileManager: some FileManagerProtocol,
         cachedAllFiles: [String]?,
     ) throws -> [String] {
         let lazyAllFiles = LazyThrowing<[String]> {
-            try cachedAllFiles ?? collectAllFiles(under: base, fileManager: fileManager)
+            let all = try cachedAllFiles ?? collectAllFiles(under: base, fileManager: fileManager)
+            return excludes.isEmpty
+                ? all
+                : all.filter { path in !excludes.contains { matchesGlob(pattern: $0, path: path) } }
         }
         let expanded = try patterns.flatMap { pattern -> [String] in
             guard isGlob(pattern) else { return [pattern] }

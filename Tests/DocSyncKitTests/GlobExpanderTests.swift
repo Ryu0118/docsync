@@ -166,6 +166,7 @@ struct GlobExpanderTests {
 
         let result = try GlobExpander.expand(
             patterns: testCase.patterns,
+            excludes: [],
             relativeTo: dir,
             fileManager: fm,
             cachedAllFiles: cached,
@@ -188,5 +189,101 @@ struct GlobExpanderTests {
             fileManager: fm,
         )
         #expect(result == ["Package.swift", "Sources/ARule.swift", "Sources/BRule.swift"])
+    }
+
+    // MARK: - excludes
+
+    struct ExcludeCase: CustomTestStringConvertible {
+        let label: String
+        let patterns: [String]
+        let excludes: [String]
+        let expectedResult: [String]
+        var testDescription: String {
+            label
+        }
+    }
+
+    /// Files written for every excludes test (see `expandRespectsExcludes`).
+    private static let excludeFixtureFiles = [
+        "Sources/A.swift",
+        "Sources/B.swift",
+        ".build/cached.swift",
+        "node_modules/lib.swift",
+    ]
+
+    @Test(arguments: [
+        ExcludeCase(
+            label: "exact_directory_pattern_drops_matches",
+            patterns: ["**/*.swift"],
+            excludes: [".build/**", "node_modules/**"],
+            expectedResult: ["Sources/A.swift", "Sources/B.swift"],
+        ),
+        ExcludeCase(
+            label: "no_excludes_keeps_everything",
+            patterns: ["**/*.swift"],
+            excludes: [],
+            expectedResult: [".build/cached.swift", "Sources/A.swift", "Sources/B.swift", "node_modules/lib.swift"],
+        ),
+        ExcludeCase(
+            label: "exclude_only_matches_strict_path",
+            patterns: ["**/*.swift"],
+            // strict mode: `.build/**` only matches paths starting with ".build/", not nested ones.
+            excludes: [".build/**"],
+            expectedResult: ["Sources/A.swift", "Sources/B.swift", "node_modules/lib.swift"],
+        ),
+    ])
+    func expandRespectsExcludes(_ testCase: ExcludeCase) throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        for path in Self.excludeFixtureFiles {
+            try write("x", at: path, in: dir)
+        }
+
+        let result = try GlobExpander.expand(
+            patterns: testCase.patterns,
+            excludes: testCase.excludes,
+            relativeTo: dir,
+            fileManager: fm,
+            cachedAllFiles: nil,
+        )
+        #expect(result == testCase.expectedResult)
+    }
+
+    @Test
+    func literalSourcesBypassExcludes() throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: ".build/explicit.swift", in: dir)
+        try write("x", at: "Sources/A.swift", in: dir)
+
+        // The literal `.build/explicit.swift` is kept even though `.build/**` is excluded:
+        // explicit user intent wins over excludes.
+        let result = try GlobExpander.expand(
+            patterns: [".build/explicit.swift", "Sources/*.swift"],
+            excludes: [".build/**"],
+            relativeTo: dir,
+            fileManager: fm,
+            cachedAllFiles: nil,
+        )
+        #expect(result == [".build/explicit.swift", "Sources/A.swift"])
+    }
+
+    @Test
+    func globMatchingOnlyExcludedFilesThrowsNoMatches() throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: ".build/cached.swift", in: dir)
+
+        // All matches for the glob are excluded -> noGlobMatches must fire, otherwise
+        // a rule could silently degenerate into an empty checksum.
+        #expect(throws: ChecksumError.noGlobMatches(".build/*.swift")) {
+            try GlobExpander.expand(
+                patterns: [".build/*.swift"],
+                excludes: [".build/**"],
+                relativeTo: dir,
+                fileManager: fm,
+                cachedAllFiles: nil,
+            )
+        }
     }
 }

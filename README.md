@@ -133,6 +133,28 @@ A glob that matches zero files is an error. Adding a new file that matches an ex
 
 ---
 
+## Excludes
+
+Trim noisy paths (build artefacts, vendored deps) from every rule with a top-level `excludes:` list. Excludes use the same glob syntax as `sources` and are matched **strictly** against the relative path — patterns are not anchored to nested directories the way `.gitignore` does. Write `**/.build/**` to drop `.build` directories at any depth.
+
+```yaml
+excludes:
+  - .build/**
+  - node_modules/**
+  - "**/Generated/**"
+rules:
+  - name: sources
+    sources:
+      - Sources/**/*.swift
+    doc: docs/architecture.md
+```
+
+- Excludes are applied **before** any rule's glob is expanded, so they speed up checks on large projects.
+- **Literal entries in `sources` bypass excludes.** Listing `.build/Generated.swift` explicitly keeps it tracked even when `.build/**` is excluded.
+- If every match for a rule is excluded the rule fails with the same "glob matched no files" error you get without excludes.
+
+---
+
 ## Custom error messages
 
 ```yaml
