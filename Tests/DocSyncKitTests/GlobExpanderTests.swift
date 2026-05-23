@@ -1,7 +1,29 @@
 // swiftformat:disable redundantSwiftTestingSuite
 @testable import DocSyncKit
 import Foundation
+import Synchronization
 import Testing
+
+/// FileManager subclass that counts how many times `subpaths(atPath:)` is invoked.
+/// Used by tests that verify GlobExpander only scans the project tree once per expansion.
+final class CountingFileManager: FileManager, @unchecked Sendable {
+    private let wrapped: FileManager
+    private let counter = Mutex<Int>(0)
+
+    var subpathsCallCount: Int {
+        counter.withLock { $0 }
+    }
+
+    init(wrapping wrapped: FileManager) {
+        self.wrapped = wrapped
+        super.init()
+    }
+
+    override func subpaths(atPath path: String) -> [String]? {
+        counter.withLock { $0 += 1 }
+        return wrapped.subpaths(atPath: path)
+    }
+}
 
 @Suite
 struct GlobExpanderTests {
@@ -127,6 +149,56 @@ struct GlobExpanderTests {
             fileManager: fm,
         )
         #expect(result == ["Sources/Foo.swift"])
+    }
+
+    struct CacheCase: CustomTestStringConvertible {
+        let label: String
+        let patterns: [String]
+        let useCache: Bool
+        let expectedSubpathCalls: Int
+        let expectedResult: [String]
+        var testDescription: String {
+            label
+        }
+    }
+
+    @Test(arguments: [
+        CacheCase(
+            label: "cached_allFiles_skips_subpaths",
+            patterns: ["Sources/*.swift"],
+            useCache: true,
+            expectedSubpathCalls: 0,
+            expectedResult: ["Sources/A.swift", "Sources/B.swift", "Sources/C.swift"],
+        ),
+        CacheCase(
+            label: "uncached_multiple_globs_scan_once",
+            patterns: ["Sources/*.swift", "Sources/A.swift", "Sources/*.swift"],
+            useCache: false,
+            expectedSubpathCalls: 1,
+            expectedResult: ["Sources/A.swift", "Sources/B.swift", "Sources/C.swift"],
+        ),
+    ])
+    func expandReusesDirectoryScan(_ testCase: CacheCase) throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: "Sources/A.swift", in: dir)
+        try write("x", at: "Sources/B.swift", in: dir)
+        try write("x", at: "Sources/C.swift", in: dir)
+
+        let cached = testCase.useCache
+            ? try GlobExpander.collectAllFiles(under: dir, fileManager: fm)
+            : nil
+        let counting = CountingFileManager(wrapping: fm)
+
+        let result = try GlobExpander.expand(
+            patterns: testCase.patterns,
+            relativeTo: dir,
+            fileManager: counting,
+            cachedAllFiles: cached,
+        )
+
+        #expect(result == testCase.expectedResult)
+        #expect(counting.subpathsCallCount == testCase.expectedSubpathCalls)
     }
 
     @Test
