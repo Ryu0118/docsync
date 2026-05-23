@@ -1,3 +1,4 @@
+import AsyncOperations
 import FileManagerProtocol
 import Foundation
 
@@ -25,12 +26,15 @@ package struct UpdateRunner {
         var config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
 
-        for index in config.rules.indices {
-            let checksum = try ChecksumCalculator.calculate(
-                sources: config.rules[index].sources,
+        let checksums = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) {
+            try ChecksumCalculator.calculate(
+                sources: $0.sources,
                 relativeTo: base,
                 fileManager: fileManager,
             )
+        }
+
+        for (index, checksum) in checksums.enumerated() {
             config.rules[index].checksum = checksum
         }
 

@@ -14,6 +14,7 @@ let package = Package(
         .package(url: "https://github.com/Ryu0118/FileManagerProtocol", from: "0.1.0"),
         .package(url: "https://github.com/apple/swift-log", from: "1.6.0"),
         .package(url: "https://github.com/apple/swift-crypto", from: "4.5.0"),
+        .package(url: "https://github.com/mtj0928/swift-async-operations", from: "0.5.0"),
     ],
     targets: [
         .executableTarget(
@@ -36,6 +37,7 @@ let package = Package(
                 .product(name: "FileManagerProtocol", package: "FileManagerProtocol"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "Crypto", package: "swift-crypto"),
+                .product(name: "AsyncOperations", package: "swift-async-operations"),
             ],
         ),
         .testTarget(
