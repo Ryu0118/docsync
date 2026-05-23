@@ -24,6 +24,9 @@ A rule is **out of sync** when sources changed since `update-checksum` was last 
 ## docsync.yml syntax
 
 ```yaml
+excludes:                             # optional: glob patterns dropped from every rule
+  - .build/**
+  - node_modules/**
 rules:
   - name: <unique-rule-id>          # required: identifies this rule in output
     sources:                        # required: files whose changes trigger a check
@@ -47,6 +50,21 @@ rules:
 - A glob matching **zero files** is an error — the rule never passes.
 - Adding a new file that matches an existing glob is detected automatically; no `docsync.yml` edit needed.
 - Literal paths and globs can be mixed in the same `sources` list.
+
+### Excludes
+
+Top-level `excludes:` accepts the same glob syntax and is **strict** — patterns
+match the full relative path, just like `sources`. To drop `.build` directories
+nested anywhere under the project, write `**/.build/**`; `.build/**` only matches
+a `.build/` at the project root.
+
+- Excludes are applied **before** any rule's `sources` glob is expanded — useful
+  for trimming `.build`, `node_modules`, generated bundles, etc.
+- **Literal (non-glob) entries in `sources` bypass excludes.** If you list
+  `.build/Generated.swift` explicitly it stays tracked even when `.build/**` is
+  excluded; explicit user intent wins.
+- A rule whose only matches were excluded raises the same `noGlobMatches` error
+  so silent empty checksums never happen.
 
 ### Checksum algorithm
 
