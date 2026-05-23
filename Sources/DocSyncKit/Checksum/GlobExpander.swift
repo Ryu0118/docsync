@@ -26,22 +26,6 @@ package enum GlobExpander {
         )
     }
 
-    /// Backwards-compatible overload: takes `cachedAllFiles` but no `excludes`.
-    package static func expand(
-        patterns: [String],
-        relativeTo base: URL,
-        fileManager: some FileManagerProtocol,
-        cachedAllFiles: [String]?,
-    ) throws -> [String] {
-        try expand(
-            patterns: patterns,
-            excludes: [],
-            relativeTo: base,
-            fileManager: fileManager,
-            cachedAllFiles: cachedAllFiles,
-        )
-    }
-
     /// Expands `patterns` while removing any glob-matched paths covered by `excludes`.
     ///
     /// Literal (non-glob) entries in `patterns` bypass `excludes` so explicit user intent

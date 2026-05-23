@@ -166,6 +166,7 @@ struct GlobExpanderTests {
 
         let result = try GlobExpander.expand(
             patterns: testCase.patterns,
+            excludes: [],
             relativeTo: dir,
             fileManager: fm,
             cachedAllFiles: cached,

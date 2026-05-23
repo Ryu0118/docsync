@@ -23,22 +23,6 @@ package enum ChecksumCalculator {
         )
     }
 
-    /// Backwards-compatible overload: takes `cachedAllFiles` but no `excludes`.
-    package static func calculate(
-        sources: [String],
-        relativeTo base: URL,
-        fileManager: some FileManagerProtocol,
-        cachedAllFiles: [String]?,
-    ) throws -> String {
-        try calculate(
-            sources: sources,
-            excludes: [],
-            relativeTo: base,
-            fileManager: fileManager,
-            cachedAllFiles: cachedAllFiles,
-        )
-    }
-
     /// Accepts top-level `excludes` and an optional `cachedAllFiles` to amortise directory
     /// enumeration across rules. Literal entries in `sources` bypass `excludes`.
     package static func calculate(
