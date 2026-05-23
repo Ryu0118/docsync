@@ -27,9 +27,11 @@ package struct UpdateRunner {
         let base = configURL.deletingLastPathComponent()
 
         let allFiles = try GlobExpander.collectAllFiles(under: base, fileManager: fileManager)
+        let excludes = config.excludes
         let checksums = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) { rule in
             try ChecksumCalculator.calculate(
                 sources: rule.sources,
+                excludes: excludes,
                 relativeTo: base,
                 fileManager: fileManager,
                 cachedAllFiles: allFiles,
