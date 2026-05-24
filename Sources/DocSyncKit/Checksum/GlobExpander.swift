@@ -39,10 +39,16 @@ package enum GlobExpander {
         cachedAllFiles: [String]?,
     ) throws -> [String] {
         let lazyAllFiles = LazyThrowing<[String]> {
-            let all = try cachedAllFiles ?? collectAllFiles(under: base, fileManager: fileManager)
-            return excludes.isEmpty
-                ? all
-                : all.filter { path in !excludes.contains { matchesGlob(pattern: $0, path: path) } }
+            // When the caller passes cachedAllFiles we cannot know whether they pre-applied
+            // excludes, so we re-apply here defensively. The cache-less path delegates to
+            // the excludes-aware collectAllFiles so that subpath entries matching excludes
+            // are dropped *before* the expensive per-path fileExists check runs.
+            if let cachedAllFiles {
+                return excludes.isEmpty
+                    ? cachedAllFiles
+                    : cachedAllFiles.filter { path in !excludes.contains { matchesGlob(pattern: $0, path: path) } }
+            }
+            return try collectAllFiles(under: base, fileManager: fileManager, excludes: excludes)
         }
         let expanded = try patterns.flatMap { pattern -> [String] in
             guard isGlob(pattern) else { return [pattern] }
@@ -59,10 +65,27 @@ package enum GlobExpander {
         under base: URL,
         fileManager: some FileManagerProtocol,
     ) throws -> [String] {
+        try collectAllFiles(under: base, fileManager: fileManager, excludes: [])
+    }
+
+    /// Enumerates every file under `base` while dropping `excludes`-matched paths *before*
+    /// the per-path `fileExists` check runs.
+    ///
+    /// On large trees the `fileExists` calls dominate `collectAllFiles`. Filtering
+    /// `subpaths` against `excludes` first removes the cost of those calls for every
+    /// excluded file, not just the cost of glob matching.
+    package static func collectAllFiles(
+        under base: URL,
+        fileManager: some FileManagerProtocol,
+        excludes: [String],
+    ) throws -> [String] {
         guard let subpaths = fileManager.subpaths(atPath: base.path(percentEncoded: false)) else {
             return []
         }
-        return subpaths.filter { isFile(path: $0, base: base, fileManager: fileManager) }
+        let candidates = excludes.isEmpty
+            ? subpaths
+            : subpaths.filter { path in !excludes.contains { matchesGlob(pattern: $0, path: path) } }
+        return candidates.filter { isFile(path: $0, base: base, fileManager: fileManager) }
     }
 
     /// Returns true if `path` matches the glob `pattern`.

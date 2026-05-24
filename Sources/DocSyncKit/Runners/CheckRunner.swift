@@ -59,7 +59,11 @@ package struct CheckRunner {
     private func evaluateConfig() async throws -> CheckResult {
         let config = try configLoader.load(from: configURL)
         let base = configURL.deletingLastPathComponent()
-        let allFiles = try GlobExpander.collectAllFiles(under: base, fileManager: fileManager)
+        let allFiles = try GlobExpander.collectAllFiles(
+            under: base,
+            fileManager: fileManager,
+            excludes: config.excludes,
+        )
         let statuses = try await config.rules.asyncMap(numberOfConcurrentTasks: 10) { rule in
             try evaluate(rule: rule, base: base, excludes: config.excludes, allFiles: allFiles)
         }
