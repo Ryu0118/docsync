@@ -322,4 +322,41 @@ struct GlobExpanderTests {
         #expect(!result.contains(".build/cached.swift"))
         #expect(!result.contains("node_modules/lib.swift"))
     }
+
+    @Test
+    func collectAllFilesSkipsNestedExcludedDirectories() throws {
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: "Sources/A.swift", in: dir)
+        try write("x", at: "Packages/Foo/.build/x.o", in: dir)
+        try write("x", at: "Packages/Foo/.build/sub/y.o", in: dir)
+        try write("x", at: "Packages/Bar/.build/z.o", in: dir)
+
+        let result = try GlobExpander.collectAllFiles(
+            under: dir,
+            fileManager: fm,
+            excludes: ["**/.build/**"],
+        )
+        #expect(result.contains("Sources/A.swift"))
+        #expect(!result.contains { $0.contains(".build/") })
+    }
+
+    @Test
+    func collectAllFilesKeepsFilesUnderNonExcludedDirectoriesWithSimilarNames() throws {
+        // Guard against accidental over-skipping: `.buildkit` must not be treated as `.build`.
+        let dir = try makeTempDir()
+        defer { try? fm.removeItem(at: dir) }
+        try write("x", at: "Sources/A.swift", in: dir)
+        try write("x", at: ".build/cached.o", in: dir)
+        try write("x", at: ".buildkit/keep.swift", in: dir)
+
+        let result = try GlobExpander.collectAllFiles(
+            under: dir,
+            fileManager: fm,
+            excludes: [".build/**"],
+        )
+        #expect(result.contains("Sources/A.swift"))
+        #expect(result.contains(".buildkit/keep.swift"))
+        #expect(!result.contains(".build/cached.o"))
+    }
 }

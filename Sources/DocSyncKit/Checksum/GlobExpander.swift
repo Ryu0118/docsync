@@ -68,25 +68,59 @@ package enum GlobExpander {
         try collectAllFiles(under: base, fileManager: fileManager, excludes: [])
     }
 
-    /// Enumerates every file under `base` while dropping `excludes`-matched paths *before*
-    /// the per-path `fileExists` check runs.
+    /// Enumerates every file under `base` while skipping `excludes`-matched directories
+    /// without descending into them.
     ///
-    /// On large trees the `fileExists` calls dominate `collectAllFiles`. Filtering
-    /// `subpaths` against `excludes` first removes the cost of those calls for every
-    /// excluded file, not just the cost of glob matching.
+    /// Uses `enumerator(atPath:)` so that excluded subtrees (e.g. `.build`, `node_modules`)
+    /// are pruned via ``FileManager/DirectoryEnumerator/skipDescendants()`` instead of being
+    /// enumerated and filtered out afterwards. This avoids the cost of walking into very
+    /// large generated directories at all.
     package static func collectAllFiles(
         under base: URL,
         fileManager: some FileManagerProtocol,
         excludes: [String],
     ) throws -> [String] {
-        guard let subpaths = fileManager.subpaths(atPath: base.path(percentEncoded: false)) else {
+        guard let enumerator = fileManager.enumerator(atPath: base.path(percentEncoded: false)) else {
             return []
         }
-        let candidates = excludes.isEmpty
-            ? subpaths
-            : subpaths.filter { path in !excludes.contains { matchesGlob(pattern: $0, path: path) } }
-        return candidates.filter { isFile(path: $0, base: base, fileManager: fileManager) }
+        var result: [String] = []
+        while let path = enumerator.nextObject() as? String {
+            let isDirectory = (enumerator.fileAttributes?[.type] as? FileAttributeType) == .typeDirectory
+            if isDirectory {
+                if shouldSkipDirectory(path: path, excludes: excludes) {
+                    enumerator.skipDescendants()
+                }
+                continue
+            }
+            if shouldExcludeFile(path: path, excludes: excludes) {
+                continue
+            }
+            result.append(path)
+        }
+        return result
     }
+
+    /// True if `path` (a directory enumerated under `base`) is covered by any exclude pattern,
+    /// in which case the enumerator can safely skip descending into it.
+    ///
+    /// A pattern ending in `/**` (or just `**`) covers the directory itself and everything
+    /// under it. We probe matching with a sentinel suffix so a pattern like `.build/**`
+    /// matches the directory `.build`.
+    private static func shouldSkipDirectory(path: String, excludes: [String]) -> Bool {
+        guard !excludes.isEmpty else { return false }
+        let probe = path + "/" + directorySkipSentinel
+        return excludes.contains { matchesGlob(pattern: $0, path: probe) }
+    }
+
+    private static func shouldExcludeFile(path: String, excludes: [String]) -> Bool {
+        guard !excludes.isEmpty else { return false }
+        return excludes.contains { matchesGlob(pattern: $0, path: path) }
+    }
+
+    /// Synthetic filename appended to a directory path when probing whether an exclude
+    /// pattern would cover everything under it. Picked to be extremely unlikely to collide
+    /// with real source file names.
+    private static let directorySkipSentinel = "__docsync_skip_probe__"
 
     /// Returns true if `path` matches the glob `pattern`.
     ///

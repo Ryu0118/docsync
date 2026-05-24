@@ -35,4 +35,4 @@ rules:
   message: CLI surface, error messages, config schema, glob behaviour, or checksum
     algorithm changed — review SKILL.md and update the affected sections (syntax,
     error states, best practices) only if the agent-facing description is now inaccurate.
-  checksum: f58ffd785e26e30fff7acfe651bfa63a66bc3636463116db46a2f6797059517d
+  checksum: c9fc07ce664bb70e608e8a52b2bad4598a93e1579250531253499ba7e5a781bd
