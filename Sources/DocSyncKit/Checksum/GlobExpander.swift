@@ -85,17 +85,33 @@ package enum GlobExpander {
         }
         var result: [String] = []
         while let path = enumerator.nextObject() as? String {
-            let isDirectory = (enumerator.fileAttributes?[.type] as? FileAttributeType) == .typeDirectory
-            if isDirectory {
+            // `fileAttributes` is lstat-equivalent: symlinks report `.typeSymbolicLink`,
+            // not the target's type. If it is nil (rare on macOS, possible per Apple's docs)
+            // we skip the entry entirely — the previous `fileExists`-based code would have
+            // dropped these too.
+            guard let fileType = enumerator.fileAttributes?[.type] as? FileAttributeType else {
+                continue
+            }
+            switch fileType {
+            case .typeDirectory:
                 if shouldSkipDirectory(path: path, excludes: excludes) {
                     enumerator.skipDescendants()
                 }
-                continue
+            case .typeSymbolicLink:
+                // Match the previous behaviour: resolve the symlink and keep it only if it
+                // points at an existing non-directory. Without this, a `dir → linked-dir`
+                // symlink would land in the result list and later trip ChecksumCalculator
+                // when `contents(atPath:)` returns nil for a directory.
+                if isFile(path: path, base: base, fileManager: fileManager),
+                   !shouldExcludeFile(path: path, excludes: excludes)
+                {
+                    result.append(path)
+                }
+            default:
+                if !shouldExcludeFile(path: path, excludes: excludes) {
+                    result.append(path)
+                }
             }
-            if shouldExcludeFile(path: path, excludes: excludes) {
-                continue
-            }
-            result.append(path)
         }
         return result
     }
