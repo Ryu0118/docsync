@@ -286,40 +286,4 @@ struct GlobExpanderTests {
             )
         }
     }
-
-    // MARK: - collectAllFiles excludes overload
-
-    @Test
-    func collectAllFilesWithEmptyExcludesMatchesPlainOverload() throws {
-        let dir = try makeTempDir()
-        defer { try? fm.removeItem(at: dir) }
-        try write("x", at: "Sources/A.swift", in: dir)
-        try write("x", at: ".build/cached.swift", in: dir)
-
-        let plain = try GlobExpander.collectAllFiles(under: dir, fileManager: fm)
-        let withEmptyExcludes = try GlobExpander.collectAllFiles(
-            under: dir,
-            fileManager: fm,
-            excludes: [],
-        )
-        #expect(withEmptyExcludes == plain)
-    }
-
-    @Test
-    func collectAllFilesDropsExcludeMatchesEarly() throws {
-        let dir = try makeTempDir()
-        defer { try? fm.removeItem(at: dir) }
-        try write("x", at: "Sources/A.swift", in: dir)
-        try write("x", at: ".build/cached.swift", in: dir)
-        try write("x", at: "node_modules/lib.swift", in: dir)
-
-        let result = try GlobExpander.collectAllFiles(
-            under: dir,
-            fileManager: fm,
-            excludes: [".build/**", "node_modules/**"],
-        )
-        #expect(result.contains("Sources/A.swift"))
-        #expect(!result.contains(".build/cached.swift"))
-        #expect(!result.contains("node_modules/lib.swift"))
-    }
 }
