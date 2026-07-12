@@ -1,0 +1,12 @@
+{
+  "name": "docsync",
+  "version": "0.3.1",
+  "description": "docsync CLI configuration, error recovery, and integration guide for AI agents and humans.",
+  "author": {
+    "name": "Ryu0118"
+  },
+  "homepage": "https://github.com/Ryu0118/docsync",
+  "repository": "https://github.com/Ryu0118/docsync",
+  "license": "MIT",
+  "keywords": ["docs", "checksum", "documentation", "agent"]
+}

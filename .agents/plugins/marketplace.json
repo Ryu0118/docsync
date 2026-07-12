@@ -1,0 +1,20 @@
+{
+  "name": "docsync",
+  "interface": {
+    "displayName": "docsync"
+  },
+  "plugins": [
+    {
+      "name": "docsync",
+      "source": {
+        "source": "local",
+        "path": "./plugins/docsync"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

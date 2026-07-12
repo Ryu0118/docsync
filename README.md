@@ -49,20 +49,67 @@ cp .build/release/docsync /usr/local/bin/
 
 Install the **docsync** skill so your AI agent understands the config syntax, error messages, and best practices — and knows exactly what action to take when `docsync check` fails.
 
-```bash
-# via skills CLI (https://github.com/vercel-labs/skills)
-npx skills add Ryu0118/docsync --skill docsync -g
+These commands install the agent skill/plugin metadata, not the `docsync`
+binary. Install the binary separately with `curl`, Nest, mise, or from source.
 
-# or download directly to ~/.agents/skills/ (Agent Skills standard)
-mkdir -p ~/.agents/skills/docsync
-curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/.agents/skills/docsync/SKILL.md \
-  -o ~/.agents/skills/docsync/SKILL.md
+### Claude Code
 
-# Claude Code: also install to ~/.claude/skills/
-mkdir -p ~/.claude/skills/docsync
-curl -fsSL https://raw.githubusercontent.com/Ryu0118/docsync/main/.agents/skills/docsync/SKILL.md \
-  -o ~/.claude/skills/docsync/SKILL.md
+```sh
+/plugin marketplace add Ryu0118/docsync
+/plugin install docsync@docsync
 ```
+
+### Codex
+
+Add the marketplace, then install the plugin:
+
+```sh
+codex plugin marketplace add Ryu0118/docsync
+codex plugin add docsync@docsync
+```
+
+To develop against a local clone instead, point the marketplace at the checkout:
+
+```sh
+git clone https://github.com/Ryu0118/docsync
+codex plugin marketplace add ./docsync
+codex plugin add docsync@docsync
+```
+
+### APM (Agent Package Manager)
+
+With [APM](https://github.com/microsoft/apm), one command installs the skill
+into any supported harness (Claude Code, Copilot, Cursor, Codex, and more) and
+pins it in `apm.lock.yaml`:
+
+```sh
+apm install Ryu0118/docsync
+```
+
+### GitHub CLI (`gh skill`)
+
+[GitHub CLI v2.90.0+](https://github.blog/changelog/2026-04-16-manage-agent-skills-with-github-cli/)
+ships a `gh skill` command (alias: `gh skills`). It pins to the latest release
+tag and records provenance (repo, ref, tree SHA) in the installed SKILL.md:
+
+```sh
+gh skill install Ryu0118/docsync docsync --agent claude-code
+```
+
+Run `gh skill install Ryu0118/docsync` without a skill name for interactive
+selection, and use `--agent` / `--scope` to control where skills land.
+
+### skills CLI (`npx skills`)
+
+The [skills CLI](https://github.com/vercel-labs/skills) installs into the
+shared `.agents/skills/` directory used by many agents:
+
+```sh
+npx skills add Ryu0118/docsync --all
+```
+
+Use `--list` to inspect available skills first, or `-a claude-code` to target
+a specific agent.
 
 ---
 

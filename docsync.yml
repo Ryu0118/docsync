@@ -31,8 +31,19 @@ rules:
   - Sources/DocSyncKit/Config/ConfigLoader.swift
   - Sources/DocSyncKit/Checksum/GlobExpander.swift
   - Sources/DocSyncKit/Checksum/ChecksumCalculator.swift
-  doc: .agents/skills/docsync/SKILL.md
+  doc: skills/docsync/SKILL.md
   message: CLI surface, error messages, config schema, glob behaviour, or checksum
     algorithm changed — review SKILL.md and update the affected sections (syntax,
     error states, best practices) only if the agent-facing description is now inaccurate.
   checksum: fb2941b822197df045e404520fe03dd418c156f06b123608b79dd670590a1935
+- name: readme-agent-integrations
+  sources:
+  - .claude/plugins/docsync/.claude-plugin/plugin.json
+  - plugins/docsync/.codex-plugin/plugin.json
+  - .claude-plugin/marketplace.json
+  - .agents/plugins/marketplace.json
+  - apm.yml
+  - skills/docsync/SKILL.md
+  doc: README.md
+  message: Agent skill/plugin manifests changed — update README installation instructions.
+  checksum: 364b783d73b04939919ab22e864fb86e1c80430ffba3635a2ed9c8da300cdb3a

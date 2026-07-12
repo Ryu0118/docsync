@@ -1,0 +1,17 @@
+{
+  "name": "docsync",
+  "owner": {
+    "name": "Ryu0118"
+  },
+  "metadata": {
+    "description": "Official docsync skills for Claude Code",
+    "version": "0.3.1"
+  },
+  "plugins": [
+    {
+      "name": "docsync",
+      "source": "./.claude/plugins/docsync",
+      "category": "productivity"
+    }
+  ]
+}
