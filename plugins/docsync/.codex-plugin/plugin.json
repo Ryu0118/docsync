@@ -1,0 +1,33 @@
+{
+  "name": "docsync",
+  "version": "0.3.1",
+  "description": "docsync CLI configuration, error recovery, and integration guide for AI agents and humans.",
+  "author": {
+    "name": "Ryu0118"
+  },
+  "homepage": "https://github.com/Ryu0118/docsync",
+  "repository": "https://github.com/Ryu0118/docsync",
+  "license": "MIT",
+  "keywords": [
+    "docs",
+    "checksum",
+    "documentation",
+    "agent"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "docsync",
+    "shortDescription": "Configure and recover docsync checks from Codex.",
+    "longDescription": "docsync provides Codex with guidance for docsync.yml design, checksum drift recovery, CLI usage, hook integration, and documentation sync best practices.",
+    "developerName": "Ryu0118",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Set up docsync for this project.",
+      "Fix this docsync check failure.",
+      "Add docsync rules for these source and documentation files."
+    ]
+  }
+}
