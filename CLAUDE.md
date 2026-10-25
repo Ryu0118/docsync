@@ -23,6 +23,7 @@ Tests/
 - No `nonisolated(unsafe)`
 - Use `FileManagerProtocol` for all file I/O to keep tests mockable
 - Checksums are deterministic pure functions: sort sources alphabetically before hashing
+- When documentation and the existing code disagree, follow the conventions used in the existing code, and in your final reply list every inconsistency you found between the documentation and the code.
 
 ## Tooling
 
